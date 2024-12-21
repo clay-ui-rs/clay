@@ -42,19 +42,9 @@ pub enum Sizing {
     Percent(f32),
 }
 
-pub struct Layout {
-    inner: Clay_LayoutConfig,
-}
-
-impl Layout {
-    pub fn new() -> Self {
-        let inner = MaybeUninit::<Clay_LayoutConfig>::zeroed(); // Creates zero-initialized uninitialized memory
-        let inner = unsafe { inner.assume_init() };
-        Self { inner }
-    }
-
-    fn sizing(size: Sizing) -> Clay_SizingAxis {
-        match size {
+impl Into<Clay_SizingAxis> for Sizing {
+    fn into(self) -> Clay_SizingAxis {
+        match self {
             Sizing::Fit(min, max) => Clay_SizingAxis {
                 type_: SizingType::Fit as _,
                 __bindgen_anon_1: Clay_SizingAxis__bindgen_ty_1 {
@@ -87,6 +77,18 @@ impl Layout {
             },
         }
     }
+}
+
+pub struct Layout {
+    inner: Clay_LayoutConfig,
+}
+
+impl Layout {
+    pub fn new() -> Self {
+        let inner = MaybeUninit::<Clay_LayoutConfig>::zeroed(); // Creates zero-initialized uninitialized memory
+        let inner = unsafe { inner.assume_init() };
+        Self { inner }
+    }
 
     fn null_id() -> Clay_ElementId {
         let inner = MaybeUninit::<Clay_ElementId>::zeroed(); // Creates zero-initialized uninitialized memory
@@ -94,12 +96,12 @@ impl Layout {
     }
 
     pub fn sizing_width(&mut self, sizing: Sizing) -> &mut Self {
-        self.inner.sizing.width = Self::sizing(sizing);
+        self.inner.sizing.width = sizing.into();
         self
     }
 
     pub fn sizing_height(&mut self, sizing: Sizing) -> &mut Self {
-        self.inner.sizing.height = Self::sizing(sizing);
+        self.inner.sizing.height = sizing.into();
         self
     }
 
