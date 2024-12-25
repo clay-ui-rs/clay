@@ -55,12 +55,27 @@ jobs:
         if [ "${{ matrix.feature }}" = "wasm" ]; then
           cargo build --target wasm32-unknown-unknown;
         elif [ "${{ matrix.feature }}" = "no-std" ]; then
-          cargo build --no-default-features;
+          cargo build --no-default-features
         elif [ "${{ matrix.feature }}" = "debug" ]; then
           cargo build --features debug
         else
           cargo test;
         fi
+      if: runner.os != 'Windows'
+
+    - name: Run tests on Windows
+      shell: cmd
+      run: |
+        if "%matrix.feature%"=="debug" (
+          cargo build --target %WASM_TARGET%
+        ) else if "%matrix.feature%"=="no_std" (
+          cargo build --no-default-features
+        ) else if "%matrix.feature%"=="debug" (
+          cargo build --features debug
+        ) else (
+          cargo test
+        )
+      if: runner.os == 'Windows'
 
       # - name: Run Clippy (Linter)
       # run: cargo clippy --all-targets --all-features -- -D warnings
