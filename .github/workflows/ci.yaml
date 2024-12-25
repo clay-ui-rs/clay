@@ -77,6 +77,6 @@ jobs:
         )
       if: runner.os == 'Windows'
 
-      # - name: Run Clippy (Linter)
-      # run: cargo clippy --all-targets --all-features -- -D warnings
+    - name: Run Clippy (Linter)
+      run: cargo clippy
 
