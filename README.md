@@ -14,10 +14,10 @@ Rust bindings for [Clay](https://github.com/nicbarker/clay), a UI layout library
     - (X) Floating Container
     - (X) Border Container
     - (X) Scroll Container
-    - ( ) Custom Elements
-- ( ) Text Measuring
-- ( ) Element Ids
-- ( ) Interactions
+    - (X) Custom Elements
+- (X) Text Measuring
+- (X) Element Ids
+- (O) Interactions
 - ( ) Debug Tools
 - ( ) Render Commands
 - (O) Full Test Coverrage

@@ -21,13 +21,6 @@ pub enum ElementConfigType {
     Layout = 66,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[repr(u32)]
-pub enum PointerCaptureMode {
-    Capture = Clay_PointerCaptureMode_CLAY_POINTER_CAPTURE_MODE_CAPTURE,
-    Passthrough = Clay_PointerCaptureMode_CLAY_POINTER_CAPTURE_MODE_PASSTHROUGH,
-}
-
 pub enum CornerRadius {
     All(f32),
     Individual {
@@ -38,10 +31,10 @@ pub enum CornerRadius {
     },
 }
 
-impl Into<Clay_CornerRadius> for CornerRadius {
-    fn into(self) -> Clay_CornerRadius {
-        match self {
-            CornerRadius::All(radius) => Clay_CornerRadius {
+impl From<CornerRadius> for Clay_CornerRadius {
+    fn from(value: CornerRadius) -> Self {
+        match value {
+            CornerRadius::All(radius) => Self {
                 topLeft: radius,
                 topRight: radius,
                 bottomLeft: radius,
@@ -52,12 +45,29 @@ impl Into<Clay_CornerRadius> for CornerRadius {
                 top_right,
                 bottom_left,
                 bottom_right,
-            } => Clay_CornerRadius {
+            } => Self {
                 topLeft: top_left,
                 topRight: top_right,
                 bottomLeft: bottom_left,
                 bottomRight: bottom_right,
             },
+        }
+    }
+}
+impl From<Clay_CornerRadius> for CornerRadius {
+    fn from(value: Clay_CornerRadius) -> Self {
+        if value.topLeft == value.topRight
+            && value.topRight == value.bottomLeft
+            && value.bottomLeft == value.bottomRight
+        {
+            Self::All(value.topLeft)
+        } else {
+            Self::Individual {
+                top_left: value.topLeft,
+                top_right: value.topRight,
+                bottom_left: value.bottomLeft,
+                bottom_right: value.bottomRight,
+            }
         }
     }
 }

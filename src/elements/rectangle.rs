@@ -1,16 +1,23 @@
-use crate::{bindings::*, color::Color, mem::zeroed_init, TypedConfig};
+use crate::{bindings::*, color::Color, id::Id, mem::zeroed_init, TypedConfig};
 
 use super::{CornerRadius, ElementConfigType};
 
 pub struct Rectangle {
     inner: Clay_RectangleElementConfig,
+    id: Id,
 }
 
 impl Rectangle {
     pub fn new() -> Self {
         Self {
             inner: zeroed_init(),
+            id: Id::default(),
         }
+    }
+
+    pub fn attach(&mut self, id: Id) -> &mut Self {
+        self.id = id;
+        self
     }
 
     pub fn color(&mut self, color: Color) -> &mut Self {
@@ -28,7 +35,7 @@ impl Rectangle {
 
         TypedConfig {
             config_memory: memory as _,
-            id: zeroed_init(),
+            id: self.id.into(),
             config_type: ElementConfigType::Rectangle as _,
         }
     }

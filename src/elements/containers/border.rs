@@ -2,19 +2,27 @@ use crate::{
     bindings::*,
     color::Color,
     elements::{CornerRadius, ElementConfigType},
+    id::Id,
     mem::zeroed_init,
     TypedConfig,
 };
 
 pub struct BorderContainer {
     inner: Clay_BorderElementConfig,
+    id: Id,
 }
 
 impl BorderContainer {
     pub fn new() -> Self {
         Self {
             inner: zeroed_init(),
+            id: Id::default(),
         }
+    }
+
+    pub fn attach(&mut self, id: Id) -> &mut Self {
+        self.id = id;
+        self
     }
 
     fn into_clay_border(width: u32, color: Color) -> Clay_Border {
@@ -65,7 +73,7 @@ impl BorderContainer {
 
         TypedConfig {
             config_memory: memory as _,
-            id: zeroed_init(),
+            id: self.id.into(),
             config_type: ElementConfigType::BorderContainer as _,
         }
     }

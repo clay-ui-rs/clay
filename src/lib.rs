@@ -4,6 +4,7 @@ pub mod bindings;
 
 pub mod color;
 pub mod elements;
+pub mod id;
 pub mod layout;
 pub mod math;
 pub mod render_commands;
@@ -11,6 +12,7 @@ pub mod render_commands;
 mod mem;
 
 use elements::{text::TextElementConfig, ElementConfigType};
+use math::{Dimensions, Vector2};
 
 use crate::bindings::*;
 
@@ -20,6 +22,25 @@ pub struct TypedConfig {
     pub config_memory: *const u8,
     pub id: Clay_ElementId,
     pub config_type: ElementConfigType,
+}
+
+pub type MeasureTextFunction = fn(text: &str, config: TextElementConfig) -> Dimensions;
+
+// Is used to store the current callback for measuring text
+static mut MEASURE_TEXT_HANDLER: Option<MeasureTextFunction> = None;
+
+// Converts the args and calls `MEASURE_TEXT_HANDLER`. Passed to clay with `Clay_SetMeasureTextFunction`
+unsafe extern "C" fn measure_text_handle(
+    str: *mut Clay_String,
+    config: *mut Clay_TextElementConfig,
+) -> Clay_Dimensions {
+    match MEASURE_TEXT_HANDLER {
+        Some(func) => func(str.as_ref().unwrap().to_owned().into(), config.into()).into(),
+        None => Clay_Dimensions {
+            width: 0.0,
+            height: 0.0,
+        },
+    }
 }
 
 pub struct Clay {
@@ -34,23 +55,23 @@ pub struct Clay {
 
 impl Clay {
     #[cfg(feature = "std")]
-    pub fn new(width: f32, height: f32) -> Self {
+    pub fn new(dimensions: Dimensions) -> Self {
         let memory_size = unsafe { Clay_MinMemorySize() };
         let memory = vec![0; memory_size as usize];
         unsafe {
             let arena =
                 Clay_CreateArenaWithCapacityAndMemory(memory_size as _, memory.as_ptr() as _);
-            Clay_Initialize(arena, Clay_Dimensions { width, height });
+            Clay_Initialize(arena, dimensions.into());
         }
 
         Self { _memory: memory }
     }
 
     #[cfg(not(feature = "std"))]
-    pub unsafe fn new_with_memory(width: f32, height: f32, memory: *mut core::ffi::c_void) -> Self {
+    pub unsafe fn new_with_memory(dimensions: Dimensions, memory: *mut core::ffi::c_void) -> Self {
         let memory_size = Clay_MinMemorySize();
         let arena = Clay_CreateArenaWithCapacityAndMemory(memory_size as _, memory);
-        Clay_Initialize(arena, Clay_Dimensions { width, height });
+        Clay_Initialize(arena, dimensions.into());
 
         Self { _memory: memory }
     }
@@ -58,6 +79,39 @@ impl Clay {
     pub fn required_memory_size() -> usize {
         unsafe { Clay_MinMemorySize() as usize }
     }
+
+    pub fn measure_text_function(&self, func: MeasureTextFunction) {
+        unsafe {
+            MEASURE_TEXT_HANDLER = Some(func);
+            Clay_SetMeasureTextFunction(Some(measure_text_handle));
+        }
+    }
+
+    pub fn layout_dimensions(&self, dimensions: Dimensions) {
+        unsafe {
+            Clay_SetLayoutDimensions(dimensions.into());
+        }
+    }
+    pub fn pointer_state(&self, position: Vector2, is_down: bool) {
+        unsafe {
+            Clay_SetPointerState(position.into(), is_down);
+        }
+    }
+    pub fn update_scroll_containers(
+        &self,
+        drag_scrolling_enabled: bool,
+        scroll_delta: Vector2,
+        delta_time: f32,
+    ) {
+        unsafe {
+            Clay_UpdateScrollContainers(drag_scrolling_enabled, scroll_delta.into(), delta_time);
+        }
+    }
+
+    // TODO: Uncomment once `clay.h` adds the declaration of `Clay_PointerOver`
+    // pub fn pointer_over(&self, id: Id) -> bool {
+    //     unsafe { Clay_PointerOver(id.into()) }
+    // }
 
     pub fn begin(&self) {
         unsafe { Clay_BeginLayout() };
@@ -99,11 +153,21 @@ impl Clay {
     }
 }
 
-impl Into<Clay_String> for &str {
-    fn into(self) -> Clay_String {
-        Clay_String {
-            length: self.len() as _,
-            chars: self.as_ptr() as _,
+impl From<&str> for Clay_String {
+    fn from(value: &str) -> Self {
+        Self {
+            length: value.len() as _,
+            chars: value.as_ptr() as _,
+        }
+    }
+}
+impl From<Clay_String> for &str {
+    fn from(value: Clay_String) -> Self {
+        unsafe {
+            std::str::from_utf8_unchecked(std::slice::from_raw_parts(
+                value.chars as *const u8,
+                value.length as _,
+            ))
         }
     }
 }
@@ -126,7 +190,7 @@ mod tests {
 
     #[test]
     fn test_begin() {
-        let clay = Clay::new(800.0, 600.0);
+        let clay = Clay::new(Dimensions::new(800.0, 600.0));
 
         clay.begin();
 

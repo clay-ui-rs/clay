@@ -40,24 +40,24 @@ pub enum Sizing {
     Percent(f32),
 }
 
-impl Into<Clay_SizingAxis> for Sizing {
-    fn into(self) -> Clay_SizingAxis {
-        match self {
-            Sizing::Fit(min, max) => Clay_SizingAxis {
+impl From<Sizing> for Clay_SizingAxis {
+    fn from(value: Sizing) -> Self {
+        match value {
+            Sizing::Fit(min, max) => Self {
                 type_: SizingType::Fit as _,
                 __bindgen_anon_1: Clay_SizingAxis__bindgen_ty_1 {
                     sizeMinMax: Clay_SizingMinMax { min, max },
                 },
             },
 
-            Sizing::Grow(min, max) => Clay_SizingAxis {
+            Sizing::Grow(min, max) => Self {
                 type_: SizingType::Grow as _,
                 __bindgen_anon_1: Clay_SizingAxis__bindgen_ty_1 {
                     sizeMinMax: Clay_SizingMinMax { min, max },
                 },
             },
 
-            Sizing::Fixed(size) => Clay_SizingAxis {
+            Sizing::Fixed(size) => Self {
                 type_: SizingType::Fixed as _,
                 __bindgen_anon_1: Clay_SizingAxis__bindgen_ty_1 {
                     sizeMinMax: Clay_SizingMinMax {
@@ -67,7 +67,7 @@ impl Into<Clay_SizingAxis> for Sizing {
                 },
             },
 
-            Sizing::Percent(percent) => Clay_SizingAxis {
+            Sizing::Percent(percent) => Self {
                 type_: SizingType::Percent as _,
                 __bindgen_anon_1: Clay_SizingAxis__bindgen_ty_1 {
                     sizePercent: percent,
