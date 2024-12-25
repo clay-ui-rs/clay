@@ -70,11 +70,11 @@ impl BoundingBox {
 
 impl From<Clay_BoundingBox> for BoundingBox {
     fn from(value: Clay_BoundingBox) -> Self {
-        unsafe { std::mem::transmute(value) }
+        unsafe { core::mem::transmute(value) }
     }
 }
 impl From<BoundingBox> for Clay_BoundingBox {
     fn from(value: BoundingBox) -> Self {
-        unsafe { std::mem::transmute(value) }
+        unsafe { core::mem::transmute(value) }
     }
 }

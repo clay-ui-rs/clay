@@ -35,7 +35,7 @@ unsafe extern "C" fn measure_text_handle(
     config: *mut Clay_TextElementConfig,
 ) -> Clay_Dimensions {
     match MEASURE_TEXT_HANDLER {
-        Some(func) => func(str.as_ref().unwrap().to_owned().into(), config.into()).into(),
+        Some(func) => func((*str.as_ref().unwrap()).into(), config.into()).into(),
         None => Clay_Dimensions {
             width: 0.0,
             height: 0.0,
@@ -164,7 +164,7 @@ impl From<&str> for Clay_String {
 impl From<Clay_String> for &str {
     fn from(value: Clay_String) -> Self {
         unsafe {
-            std::str::from_utf8_unchecked(std::slice::from_raw_parts(
+            core::str::from_utf8_unchecked(core::slice::from_raw_parts(
                 value.chars as *const u8,
                 value.length as _,
             ))
