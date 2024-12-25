@@ -21,18 +21,18 @@ pub enum RenderCommandType {
 }
 
 #[derive(Debug, Clone)]
-pub enum RenderCommandConfig {
+pub enum RenderCommandConfig<'a> {
     None(),
     Rectangle(Rectangle),
     Border(BorderContainer),
-    Text(String, Text),
+    Text(&'a str, Text),
     Image(Image),
     ScissorStart(),
     ScissorEnd(),
     Custom(Custom),
 }
 
-impl From<&Clay_RenderCommand> for RenderCommandConfig {
+impl From<&Clay_RenderCommand> for RenderCommandConfig<'_> {
     fn from(value: &Clay_RenderCommand) -> Self {
         match unsafe { core::mem::transmute(value.commandType) } {
             RenderCommandType::None => Self::None(),
@@ -43,7 +43,7 @@ impl From<&Clay_RenderCommand> for RenderCommandConfig {
                 &mut *(value.config.borderElementConfig)
             })),
             RenderCommandType::Text => Self::Text(
-                <Clay_String as Into<&str>>::into(value.text).to_string(),
+                <Clay_String as Into<&str>>::into(value.text),
                 Text::from(*unsafe { &mut *(value.config.textElementConfig) }),
             ),
             RenderCommandType::Image => Self::Image(Image::from(*unsafe {
@@ -59,13 +59,13 @@ impl From<&Clay_RenderCommand> for RenderCommandConfig {
 }
 
 #[derive(Debug, Clone)]
-pub struct RenderCommand {
+pub struct RenderCommand<'a> {
     pub id: u32,
     pub bounding_box: BoundingBox,
-    pub config: RenderCommandConfig,
+    pub config: RenderCommandConfig<'a>,
 }
 
-impl From<Clay_RenderCommand> for RenderCommand {
+impl<'a> From<Clay_RenderCommand> for RenderCommand<'a> {
     fn from(value: Clay_RenderCommand) -> Self {
         Self {
             id: value.id,
