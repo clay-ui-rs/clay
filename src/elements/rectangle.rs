@@ -10,10 +10,7 @@ pub struct Rectangle {
 
 impl Rectangle {
     pub fn new() -> Self {
-        Self {
-            color: Color::rgba(0., 0., 0., 0.),
-            corner_radius: CornerRadius::All(0.),
-        }
+        Self::default()
     }
 
     pub fn color(&mut self, color: Color) -> &mut Self {
@@ -33,6 +30,15 @@ impl Rectangle {
             config_memory: memory as _,
             id: id.into(),
             config_type: ElementConfigType::Rectangle as _,
+        }
+    }
+}
+
+impl Default for Rectangle {
+    fn default() -> Self {
+        Self {
+            color: Color::rgba(0., 0., 0., 0.),
+            corner_radius: CornerRadius::All(0.),
         }
     }
 }

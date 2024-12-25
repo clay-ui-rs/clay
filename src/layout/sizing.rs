@@ -19,7 +19,7 @@ pub enum Sizing {
 
 impl From<Clay_SizingAxis> for Sizing {
     fn from(value: Clay_SizingAxis) -> Self {
-        match unsafe { core::mem::transmute(value.type_) } {
+        match unsafe { core::mem::transmute::<u8, SizingType>(value.type_) } {
             SizingType::Fit => {
                 let min_max = unsafe { value.__bindgen_anon_1.sizeMinMax };
                 Self::Fit(min_max.min, min_max.max)

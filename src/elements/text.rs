@@ -35,14 +35,7 @@ pub struct Text {
 
 impl Text {
     pub fn new() -> Self {
-        Self {
-            color: Color::rgba(0., 0., 0., 0.),
-            font_id: 0,
-            font_size: 0,
-            letter_spacing: 0,
-            line_height: 0,
-            wrap_mode: TextElementConfigWrapMode::None,
-        }
+        Self::default()
     }
 
     pub fn color(&mut self, color: Color) -> &mut Self {
@@ -82,6 +75,19 @@ impl Text {
     }
 }
 
+impl Default for Text {
+    fn default() -> Self {
+        Self {
+            color: Color::rgba(0., 0., 0., 0.),
+            font_id: 0,
+            font_size: 0,
+            letter_spacing: 0,
+            line_height: 0,
+            wrap_mode: TextElementConfigWrapMode::None,
+        }
+    }
+}
+
 impl From<Clay_TextElementConfig> for Text {
     fn from(value: Clay_TextElementConfig) -> Self {
         Self {
@@ -90,7 +96,9 @@ impl From<Clay_TextElementConfig> for Text {
             font_size: value.fontSize,
             letter_spacing: value.letterSpacing,
             line_height: value.lineHeight,
-            wrap_mode: unsafe { core::mem::transmute(value.wrapMode) },
+            wrap_mode: unsafe {
+                core::mem::transmute::<u32, TextElementConfigWrapMode>(value.wrapMode)
+            },
         }
     }
 }

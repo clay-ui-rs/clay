@@ -40,15 +40,7 @@ pub struct FloatingContainer {
 
 impl FloatingContainer {
     pub fn new() -> Self {
-        Self {
-            offset: Vector2::default(),
-            expand: Dimensions::default(),
-            z_index: 0,
-            parent: 0,
-            parent_attachment: FloatingAttachPointType::LeftTop,
-            element_attachment: FloatingAttachPointType::LeftTop,
-            pointer_capture_mode: PointerCaptureMode::Capture,
-        }
+        Self::default()
     }
 
     pub fn offset(&mut self, offset: Vector2) -> &mut Self {
@@ -97,6 +89,20 @@ impl FloatingContainer {
     }
 }
 
+impl Default for FloatingContainer {
+    fn default() -> Self {
+        Self {
+            offset: Vector2::default(),
+            expand: Dimensions::default(),
+            z_index: 0,
+            parent: 0,
+            parent_attachment: FloatingAttachPointType::LeftTop,
+            element_attachment: FloatingAttachPointType::LeftTop,
+            pointer_capture_mode: PointerCaptureMode::Capture,
+        }
+    }
+}
+
 impl From<Clay_FloatingElementConfig> for FloatingContainer {
     fn from(value: Clay_FloatingElementConfig) -> Self {
         Self {
@@ -104,9 +110,15 @@ impl From<Clay_FloatingElementConfig> for FloatingContainer {
             expand: value.expand.into(),
             z_index: value.zIndex,
             parent: value.parentId,
-            element_attachment: unsafe { core::mem::transmute(value.attachment.element) },
-            parent_attachment: unsafe { core::mem::transmute(value.attachment.parent) },
-            pointer_capture_mode: unsafe { core::mem::transmute(value.pointerCaptureMode) },
+            element_attachment: unsafe {
+                core::mem::transmute::<u8, FloatingAttachPointType>(value.attachment.element)
+            },
+            parent_attachment: unsafe {
+                core::mem::transmute::<u8, FloatingAttachPointType>(value.attachment.parent)
+            },
+            pointer_capture_mode: unsafe {
+                core::mem::transmute::<u32, PointerCaptureMode>(value.pointerCaptureMode)
+            },
         }
     }
 }

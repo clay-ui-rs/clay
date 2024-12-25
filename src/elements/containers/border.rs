@@ -56,14 +56,7 @@ pub struct BorderContainer {
 
 impl BorderContainer {
     pub fn new() -> Self {
-        Self {
-            left: Border::default(),
-            right: Border::default(),
-            top: Border::default(),
-            bottom: Border::default(),
-            between_childs: Border::default(),
-            corner_radius: CornerRadius::All(0.),
-        }
+        Self::default()
     }
 
     pub fn left(&mut self, width: u32, color: Color) -> &mut Self {
@@ -109,6 +102,19 @@ impl BorderContainer {
             config_memory: memory as _,
             id: id.into(),
             config_type: ElementConfigType::BorderContainer as _,
+        }
+    }
+}
+
+impl Default for BorderContainer {
+    fn default() -> Self {
+        Self {
+            left: Border::default(),
+            right: Border::default(),
+            top: Border::default(),
+            bottom: Border::default(),
+            between_childs: Border::default(),
+            corner_radius: CornerRadius::All(0.),
         }
     }
 }

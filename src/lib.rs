@@ -121,9 +121,7 @@ impl Clay {
     pub fn end(&self) -> impl Iterator<Item = RenderCommand> {
         let array = unsafe { Clay_EndLayout() };
         let slice = unsafe { core::slice::from_raw_parts(array.internalArray, array.length as _) };
-        slice
-            .into_iter()
-            .map(|command| RenderCommand::from(*command))
+        slice.iter().map(|command| RenderCommand::from(*command))
     }
 
     pub fn with<F: FnOnce(&Clay), const N: usize>(&self, configs: [TypedConfig; N], f: F) {
@@ -137,7 +135,9 @@ impl Clay {
             } else {
                 unsafe {
                     Clay__AttachElementConfig(
-                        core::mem::transmute(config.config_memory),
+                        core::mem::transmute::<*const u8, bindings::Clay_ElementConfigUnion>(
+                            config.config_memory,
+                        ),
                         config.config_type as _,
                     )
                 };

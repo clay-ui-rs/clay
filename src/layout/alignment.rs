@@ -31,8 +31,8 @@ impl Alignment {
 impl From<Clay_ChildAlignment> for Alignment {
     fn from(value: Clay_ChildAlignment) -> Self {
         Self {
-            x: unsafe { core::mem::transmute(value.x) },
-            y: unsafe { core::mem::transmute(value.y) },
+            x: unsafe { core::mem::transmute::<u8, LayoutAlignmentX>(value.x) },
+            y: unsafe { core::mem::transmute::<u8, LayoutAlignmentY>(value.y) },
         }
     }
 }

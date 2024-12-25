@@ -11,9 +11,7 @@ pub struct Custom {
 
 impl Custom {
     pub fn new() -> Self {
-        Self {
-            data: ptr::null_mut(),
-        }
+        Self::default()
     }
 
     pub fn data<Data>(&mut self, data: &mut Data) -> &mut Self {
@@ -28,6 +26,14 @@ impl Custom {
             config_memory: memory as _,
             id: id.into(),
             config_type: ElementConfigType::Image as _,
+        }
+    }
+}
+
+impl Default for Custom {
+    fn default() -> Self {
+        Self {
+            data: ptr::null_mut(),
         }
     }
 }

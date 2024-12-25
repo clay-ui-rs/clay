@@ -27,23 +27,16 @@ pub struct Layout {
 
 impl Layout {
     pub fn new() -> Self {
-        Self {
-            width: Sizing::Fit(0., f32::MAX),
-            height: Sizing::Fit(0., f32::MAX),
-            padding: Padding::default(),
-            child_gap: 0,
-            child_alignment: Alignment::new(LayoutAlignmentX::Left, LayoutAlignmentY::Top),
-            direction: LayoutDirection::LeftToRight,
-        }
+        Self::default()
     }
 
     pub fn width(&mut self, width: Sizing) -> &mut Self {
-        self.width = width.into();
+        self.width = width;
         self
     }
 
     pub fn height(&mut self, height: Sizing) -> &mut Self {
-        self.height = height.into();
+        self.height = height;
         self
     }
 
@@ -63,6 +56,19 @@ impl Layout {
     }
 }
 
+impl Default for Layout {
+    fn default() -> Self {
+        Self {
+            width: Sizing::Fit(0., f32::MAX),
+            height: Sizing::Fit(0., f32::MAX),
+            padding: Padding::default(),
+            child_gap: 0,
+            child_alignment: Alignment::new(LayoutAlignmentX::Left, LayoutAlignmentY::Top),
+            direction: LayoutDirection::LeftToRight,
+        }
+    }
+}
+
 impl From<Clay_LayoutConfig> for Layout {
     fn from(value: Clay_LayoutConfig) -> Self {
         Self {
@@ -71,7 +77,9 @@ impl From<Clay_LayoutConfig> for Layout {
             padding: value.padding.into(),
             child_gap: value.childGap,
             child_alignment: value.childAlignment.into(),
-            direction: unsafe { core::mem::transmute(value.layoutDirection) },
+            direction: unsafe {
+                core::mem::transmute::<u8, LayoutDirection>(value.layoutDirection)
+            },
         }
     }
 }

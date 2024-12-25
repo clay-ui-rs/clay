@@ -12,10 +12,7 @@ pub struct Image {
 
 impl Image {
     pub fn new() -> Self {
-        Self {
-            data: core::ptr::null_mut(),
-            source_dimensions: Dimensions::default(),
-        }
+        Self::default()
     }
 
     pub fn data<Data>(&mut self, data: &mut Data) -> &mut Self {
@@ -35,6 +32,15 @@ impl Image {
             config_memory: memory as _,
             id: id.into(),
             config_type: ElementConfigType::Image as _,
+        }
+    }
+}
+
+impl Default for Image {
+    fn default() -> Self {
+        Self {
+            data: core::ptr::null_mut(),
+            source_dimensions: Dimensions::default(),
         }
     }
 }

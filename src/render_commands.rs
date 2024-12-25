@@ -34,7 +34,7 @@ pub enum RenderCommandConfig<'a> {
 
 impl From<&Clay_RenderCommand> for RenderCommandConfig<'_> {
     fn from(value: &Clay_RenderCommand) -> Self {
-        match unsafe { core::mem::transmute(value.commandType) } {
+        match unsafe { core::mem::transmute::<u32, RenderCommandType>(value.commandType) } {
             RenderCommandType::None => Self::None(),
             RenderCommandType::Rectangle => Self::Rectangle(Rectangle::from(*unsafe {
                 &mut *(value.config.rectangleElementConfig)
@@ -65,7 +65,7 @@ pub struct RenderCommand<'a> {
     pub config: RenderCommandConfig<'a>,
 }
 
-impl<'a> From<Clay_RenderCommand> for RenderCommand<'a> {
+impl From<Clay_RenderCommand> for RenderCommand<'_> {
     fn from(value: Clay_RenderCommand) -> Self {
         Self {
             id: value.id,

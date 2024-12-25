@@ -1,6 +1,6 @@
 use crate::{bindings::*, elements::ElementConfigType, id::Id, TypedConfig};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct ScrollContainer {
     pub horizontal: bool,
     pub vertical: bool,
@@ -8,10 +8,7 @@ pub struct ScrollContainer {
 
 impl ScrollContainer {
     pub fn new() -> Self {
-        Self {
-            horizontal: false,
-            vertical: false,
-        }
+        Self::default()
     }
 
     pub fn horizontal(&mut self) -> &mut Self {
