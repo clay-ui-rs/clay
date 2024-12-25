@@ -1,4 +1,4 @@
-use std::{ffi::c_void, marker::PhantomData};
+use core::{ffi::c_void, marker::PhantomData};
 
 use crate::{bindings::*, math::Dimensions, mem::zeroed_init, TypedConfig};
 

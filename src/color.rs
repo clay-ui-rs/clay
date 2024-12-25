@@ -29,11 +29,11 @@ impl Color {
 
 impl From<Clay_Color> for Color {
     fn from(value: Clay_Color) -> Self {
-        unsafe { std::mem::transmute(value) }
+        unsafe { core::mem::transmute(value) }
     }
 }
 impl From<Color> for Clay_Color {
     fn from(value: Color) -> Self {
-        unsafe { std::mem::transmute(value) }
+        unsafe { core::mem::transmute(value) }
     }
 }

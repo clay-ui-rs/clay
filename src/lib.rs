@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
 pub mod bindings;
 
 pub mod color;
@@ -22,10 +24,16 @@ pub struct TypedConfig {
 
 pub struct Clay {
     // Memory used internally by clay
+    #[cfg(feature = "std")]
     _memory: Vec<u8>,
+    // Memory used internally by clay. The caller is responsible for managing this memory in
+    // no_std case.
+    #[cfg(not(feature = "std"))]
+    _memory: *const core::ffi::c_void,
 }
 
 impl Clay {
+    #[cfg(feature = "std")]
     pub fn new(width: f32, height: f32) -> Self {
         let memory_size = unsafe { Clay_MinMemorySize() };
         let memory = vec![0; memory_size as usize];
@@ -36,6 +44,19 @@ impl Clay {
         }
 
         Self { _memory: memory }
+    }
+
+    #[cfg(not(feature = "std"))]
+    pub unsafe fn new_with_memory(width: f32, height: f32, memory: *mut core::ffi::c_void) -> Self {
+        let memory_size = Clay_MinMemorySize();
+        let arena = Clay_CreateArenaWithCapacityAndMemory(memory_size as _, memory);
+        Clay_Initialize(arena, Clay_Dimensions { width, height });
+
+        Self { _memory: memory }
+    }
+
+    pub fn required_memory_size() -> usize {
+        unsafe { Clay_MinMemorySize() as usize }
     }
 
     pub fn begin(&self) {
@@ -57,7 +78,7 @@ impl Clay {
             } else {
                 unsafe {
                     Clay__AttachElementConfig(
-                        std::mem::transmute(config.config_memory),
+                        core::mem::transmute(config.config_memory),
                         config.config_type as _,
                     )
                 };

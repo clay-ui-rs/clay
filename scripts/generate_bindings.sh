@@ -7,7 +7,7 @@ fi
 
 : "${CLAY_HEADER_PATH:=clay.h}"
 
-bindgen $CLAY_HEADER_PATH -o src/bindings/bindings.rs
+bindgen $CLAY_HEADER_PATH -o src/bindings/bindings.rs --use-core
 echo "Generated src/bindings/bindings.rs"
-bindgen $CLAY_HEADER_PATH -o src/bindings/bindings_debug.rs -- -DCLAY_DEBUG
+bindgen $CLAY_HEADER_PATH -o src/bindings/bindings_debug.rs --use-core -- -DCLAY_DEBUG
 echo "Generated src/bindings/bindings_debug.rs"
