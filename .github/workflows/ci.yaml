@@ -59,7 +59,7 @@ jobs:
         elif [ "${{ matrix.feature }}" = "debug" ]; then
           cargo build --features debug
         else
-          cargo test;
+          cargo test -- --test-threads=1;
         fi
       if: runner.os != 'Windows'
 
@@ -73,7 +73,7 @@ jobs:
         ) else if "%matrix.feature%"=="debug" (
           cargo build --features debug
         ) else (
-          cargo test
+          cargo test -- --test-threads=1
         )
       if: runner.os == 'Windows'
 
