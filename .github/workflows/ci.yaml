@@ -1,0 +1,67 @@
+name: Rust CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, beta, nightly]
+        feature: [default, wasm, debug, no-std]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        components: rustfmt, clippy
+        override: true
+
+    - name: Cache Cargo registry
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ matrix.rust }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-registry-
+
+    - name: Cache Cargo build
+      uses: actions/cache@v3
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-${{ matrix.rust }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-build-
+
+    - name: Install wasm32 target (if needed)
+      if: matrix.feature == 'wasm'
+      run: rustup target add wasm32-unknown-unknown
+
+    - name: Build and Test
+      run: |
+        if [ "${{ matrix.feature }}" = "wasm" ]; then
+          cargo build --target wasm32-unknown-unknown;
+        elif [ "${{ matrix.feature }}" = "no-std" ]; then
+          cargo build --no-default-features;
+        elif [ "${{ matrix.feature }}" = "debug" ]; then
+          cargo build --feature debug
+        else
+          cargo test;
+        fi
+
+    - name: Run Clippy (Linter)
+      run: cargo clippy --all-targets --all-features -- -D warnings
+
