@@ -15,7 +15,7 @@ impl Custom {
     }
 
     /// Set the data for custom. The data has to be created by using [Clay::data].
-    pub fn data<Data>(&mut self, data: DataRef) -> &mut Self {
+    pub fn data(&mut self, data: DataRef) -> &mut Self {
         self.data = data.ptr as *mut c_void;
         self
     }
