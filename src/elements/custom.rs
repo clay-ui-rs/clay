@@ -1,6 +1,6 @@
 use core::{ffi::c_void, ptr};
 
-use crate::{bindings::*, id::Id, TypedConfig};
+use crate::{bindings::*, id::Id, DataRef, TypedConfig};
 
 use super::ElementConfigType;
 
@@ -14,9 +14,9 @@ impl Custom {
         Self::default()
     }
 
-    /// The `Data` should, and must outlive the `Clay` instance !!!
-    pub fn data<Data>(&mut self, data: &mut Data) -> &mut Self {
-        self.data = data as *mut _ as *mut c_void;
+    /// Set the data for custom. The data has to be created by using [Clay::data].
+    pub fn data<Data>(&mut self, data: DataRef) -> &mut Self {
+        self.data = data.ptr as *mut c_void;
         self
     }
 
@@ -46,6 +46,7 @@ impl From<Clay_CustomElementConfig> for Custom {
         }
     }
 }
+
 impl From<Custom> for Clay_CustomElementConfig {
     fn from(value: Custom) -> Self {
         Self {

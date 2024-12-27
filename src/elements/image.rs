@@ -1,6 +1,6 @@
 use core::ffi::c_void;
 
-use crate::{bindings::*, id::Id, math::Dimensions, TypedConfig};
+use crate::{bindings::*, id::Id, math::Dimensions, DataRef, TypedConfig};
 
 use super::ElementConfigType;
 
@@ -15,9 +15,9 @@ impl Image {
         Self::default()
     }
 
-    /// The `Data` should, and must outlive the `Clay` instance !!!
-    pub fn data<Data>(&mut self, data: &mut Data) -> &mut Self {
-        self.data = data as *mut _ as *mut c_void;
+    /// Set the data of the image. The data has to be created by using [Clay::data].
+    pub fn data<Data>(&mut self, data: DataRef) -> &mut Self {
+        self.data = data.ptr as *mut c_void;
         self
     }
 
@@ -54,6 +54,7 @@ impl From<Clay_ImageElementConfig> for Image {
         }
     }
 }
+
 impl From<Image> for Clay_ImageElementConfig {
     fn from(value: Image) -> Self {
         Self {

@@ -51,7 +51,12 @@ unsafe extern "C" fn error_handler(error_data: Clay_ErrorData) {
     panic!("Clay Error: (type: {:?}) {}", error.type_, error.text);
 }
 
-pub struct Clay {
+pub struct DataRef<'a> {
+    pub(crate) ptr: *const core::ffi::c_void,
+    _phantom: core::marker::PhantomData<&'a ()>,
+}
+
+pub struct Clay<'a> {
     /// Memory used internally by clay
     #[cfg(feature = "std")]
     _memory: Vec<u8>,
@@ -59,9 +64,11 @@ pub struct Clay {
     /// no_std case.
     #[cfg(not(feature = "std"))]
     _memory: *const core::ffi::c_void,
+    /// Phantom data to keep the lifetime of the memory
+    _phantom: core::marker::PhantomData<&'a ()>,
 }
 
-impl Clay {
+impl<'a> Clay<'a> {
     #[cfg(feature = "std")]
     pub fn new(dimensions: Dimensions) -> Self {
         let memory_size = Self::required_memory_size();
@@ -81,7 +88,19 @@ impl Clay {
             );
         }
 
-        Self { _memory: memory }
+        Self {
+            _memory: memory,
+            _phantom: core::marker::PhantomData,
+        }
+    }
+
+    /// Get a reference to the data to pass to clay or the builders. This is to ensure that the
+    /// data is not dropped before clay is done with it.
+    pub fn data<T>(&self, data: &T) -> DataRef<'a> {
+        DataRef {
+            ptr: data as *const T as *const core::ffi::c_void,
+            _phantom: core::marker::PhantomData,
+        }
     }
 
     #[cfg(not(feature = "std"))]
@@ -98,7 +117,10 @@ impl Clay {
             },
         );
 
-        Self { _memory: memory }
+        Self {
+            _memory: memory,
+            _phantom: core::marker::PhantomData,
+        }
     }
 
     /// Wrapper for `Clay_MinMemorySize`, returns the minimum required memory by clay
