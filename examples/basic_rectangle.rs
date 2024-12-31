@@ -1,4 +1,11 @@
-use clay_layout::{color::Color, elements::{rectangle::Rectangle, CornerRadius}, id::Id, layout::{sizing::Sizing, Layout}, math::Dimensions, Clay};
+use clay_layout::{
+    color::Color,
+    elements::{rectangle::Rectangle, CornerRadius},
+    id::Id,
+    layout::{sizing::Sizing, Layout},
+    math::Dimensions,
+    Clay,
+};
 
 fn main() {
     // Create the clay instance
@@ -9,16 +16,19 @@ fn main() {
 
     // Adds a red rectangle with a corner radius of 5.
     // The Layout makes the rectangle have a width and height of 50.
-    clay.with([
-        Layout::new()
-            .width(Sizing::Fixed(50.))
-            .height(Sizing::Fixed(50.))
-            .end(),
-        Rectangle::new()
-            .color(Color::u_rgb(0xFF, 0x00, 0x00))
-            .corner_radius(CornerRadius::All(5.))
-            .end(Id::new("Red Rectangle"))
-    ], |_| { });
+    clay.with(
+        [
+            Layout::new()
+                .width(Sizing::Fixed(50.))
+                .height(Sizing::Fixed(50.))
+                .end(),
+            Rectangle::new()
+                .color(Color::u_rgb(0xFF, 0x00, 0x00))
+                .corner_radius(CornerRadius::All(5.))
+                .end(Id::new("Red Rectangle")),
+        ],
+        |_| {},
+    );
 
     // Return the list of render commands of your layout
     let render_commands = clay.end();

@@ -69,6 +69,11 @@ jobs:
     - name: Run tests
       run: cargo test
 
-    - name: Run Clippy (Linter)
-      run: cargo clippy
+    - name: Check Formatting
+      if: matrix.platform == 'ubuntu-latest'
+      run: cargo fmt --all -- --check
+
+    - name: Run Clippy Checks
+      if: matrix.platform == 'ubuntu-latest'
+      run: cargo clippy -- -D warnings
 

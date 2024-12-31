@@ -72,7 +72,7 @@ impl From<Sizing> for Clay_SizingAxis {
             },
             Sizing::Percent(percent) => Self {
                 type_: SizingType::Percent as _,
-                size: Clay_SizingAxis__bindgen_ty_1 { percent: percent },
+                size: Clay_SizingAxis__bindgen_ty_1 { percent },
             },
         }
     }
