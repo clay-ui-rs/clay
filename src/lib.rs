@@ -265,10 +265,7 @@ impl From<Clay_String> for &str {
 mod tests {
     use color::Color;
     use elements::{
-        containers::{border::BorderContainer},
-        rectangle::Rectangle,
-        text::Text,
-        CornerRadius,
+        containers::border::BorderContainer, rectangle::Rectangle, text::Text, CornerRadius,
     };
     use id::Id;
     use layout::{padding::Padding, sizing::Sizing, Layout};
