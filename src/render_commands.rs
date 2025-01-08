@@ -8,7 +8,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum RenderCommandType {
     None = Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_NONE,
     Rectangle = Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_RECTANGLE,
@@ -34,7 +34,7 @@ pub enum RenderCommandConfig<'a> {
 
 impl From<&Clay_RenderCommand> for RenderCommandConfig<'_> {
     fn from(value: &Clay_RenderCommand) -> Self {
-        match unsafe { core::mem::transmute::<u32, RenderCommandType>(value.commandType) } {
+        match unsafe { core::mem::transmute::<u8, RenderCommandType>(value.commandType) } {
             RenderCommandType::None => Self::None(),
             RenderCommandType::Rectangle => Self::Rectangle(Rectangle::from(*unsafe {
                 &mut *(value.config.rectangleElementConfig)
