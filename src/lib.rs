@@ -139,16 +139,16 @@ impl<'a> Clay<'a> {
 
     /// Sets the maximum number of element that clay supports
     /// **Use only if you know what you are doing or your getting errors from clay**
-    pub fn max_element_count(&self, max_element_count: i32) {
+    pub fn max_element_count(&self, max_element_count: u32) {
         unsafe {
-            Clay_SetMaxElementCount(max_element_count);
+            Clay_SetMaxElementCount(max_element_count as _);
         }
     }
     /// Sets the capacity of the cache used for text in the measure text function
     /// **Use only if you know what you are doing or your getting errors from clay**
-    pub fn max_measure_text_cache_word_count(&self, count: i32) {
+    pub fn max_measure_text_cache_word_count(&self, count: u32) {
         unsafe {
-            Clay_SetMaxElementCount(count);
+            Clay_SetMaxElementCount(count as _);
         }
     }
 
