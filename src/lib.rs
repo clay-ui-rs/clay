@@ -61,6 +61,7 @@ pub struct Clay<'a> {
     /// Memory used internally by clay
     #[cfg(feature = "std")]
     _memory: Vec<u8>,
+    context: *mut Clay_Context,
     /// Memory used internally by clay. The caller is responsible for managing this memory in
     /// no_std case.
     #[cfg(not(feature = "std"))]
@@ -74,12 +75,13 @@ impl<'a> Clay<'a> {
     pub fn new(dimensions: Dimensions) -> Self {
         let memory_size = Self::required_memory_size();
         let memory = vec![0; memory_size];
+        let context;
 
         unsafe {
             let arena =
                 Clay_CreateArenaWithCapacityAndMemory(memory_size as _, memory.as_ptr() as _);
 
-            Clay_Initialize(
+            context = Clay_Initialize(
                 arena,
                 dimensions.into(),
                 Clay_ErrorHandler {
@@ -91,6 +93,7 @@ impl<'a> Clay<'a> {
 
         Self {
             _memory: memory,
+            context,
             _phantom: core::marker::PhantomData,
         }
     }
@@ -109,7 +112,7 @@ impl<'a> Clay<'a> {
         let memory_size = Self::required_memory_size();
         let arena = Clay_CreateArenaWithCapacityAndMemory(memory_size as _, memory);
 
-        Clay_Initialize(
+        let context = Clay_Initialize(
             arena,
             dimensions.into(),
             Clay_ErrorHandler {
@@ -120,6 +123,7 @@ impl<'a> Clay<'a> {
 
         Self {
             _memory: memory,
+            context,
             _phantom: core::marker::PhantomData,
         }
     }
@@ -208,7 +212,10 @@ impl<'a> Clay<'a> {
     /// // TODO: Add Example
     /// ```
     pub fn with<F: FnOnce(&Clay), const N: usize>(&self, configs: [TypedConfig; N], f: F) {
-        unsafe { Clay__OpenElement() };
+        unsafe {
+            Clay_SetCurrentContext(self.context);
+            Clay__OpenElement()
+        };
 
         for config in configs {
             if config.config_type == ElementConfigType::Id as _ {

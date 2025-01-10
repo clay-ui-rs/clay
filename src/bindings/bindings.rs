@@ -365,6 +365,11 @@ const _: () = {
 };
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct Clay_Context {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
 pub struct Clay_Arena {
     pub nextAllocation: usize,
     pub capacity: usize,
@@ -2311,7 +2316,13 @@ unsafe extern "C" {
         arena: Clay_Arena,
         layoutDimensions: Clay_Dimensions,
         errorHandler: Clay_ErrorHandler,
-    );
+    ) -> *mut Clay_Context;
+}
+unsafe extern "C" {
+    pub fn Clay_GetCurrentContext() -> *mut Clay_Context;
+}
+unsafe extern "C" {
+    pub fn Clay_SetCurrentContext(context: *mut Clay_Context);
 }
 unsafe extern "C" {
     pub fn Clay_UpdateScrollContainers(
@@ -2389,7 +2400,13 @@ unsafe extern "C" {
     pub fn Clay_SetCullingEnabled(enabled: bool);
 }
 unsafe extern "C" {
+    pub fn Clay_GetMaxElementCount() -> i32;
+}
+unsafe extern "C" {
     pub fn Clay_SetMaxElementCount(maxElementCount: i32);
+}
+unsafe extern "C" {
+    pub fn Clay_GetMaxMeasureTextCacheWordCount() -> i32;
 }
 unsafe extern "C" {
     pub fn Clay_SetMaxMeasureTextCacheWordCount(maxMeasureTextCacheWordCount: i32);
