@@ -1,4 +1,4 @@
-use crate::{bindings::*, elements::ElementConfigType, id::Id, TypedConfig};
+use crate::{bindings::*, elements::ElementConfigType, mem, TypedConfig};
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct ScrollContainer {
@@ -21,12 +21,12 @@ impl ScrollContainer {
         self
     }
 
-    pub fn end(&self, id: Id) -> TypedConfig {
-        let memory = unsafe { Clay__StoreScrollElementConfig((*self).into()) };
+    pub fn end(self) -> TypedConfig {
+        let memory = unsafe { Clay__StoreScrollElementConfig((self).into()) };
 
         TypedConfig {
             config_memory: memory as _,
-            id: id.into(),
+            id: mem::zeroed_init(),
             config_type: ElementConfigType::ScrollContainer as _,
         }
     }

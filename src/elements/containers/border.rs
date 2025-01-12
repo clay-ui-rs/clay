@@ -2,8 +2,7 @@ use crate::{
     bindings::*,
     color::Color,
     elements::{CornerRadius, ElementConfigType},
-    id::Id,
-    TypedConfig,
+    mem, TypedConfig,
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -95,12 +94,12 @@ impl BorderContainer {
         self
     }
 
-    pub fn end(&self, id: Id) -> TypedConfig {
-        let memory = unsafe { Clay__StoreBorderElementConfig((*self).into()) };
+    pub fn end(self) -> TypedConfig {
+        let memory = unsafe { Clay__StoreBorderElementConfig((self).into()) };
 
         TypedConfig {
             config_memory: memory as _,
-            id: id.into(),
+            id: mem::zeroed_init(),
             config_type: ElementConfigType::BorderContainer as _,
         }
     }

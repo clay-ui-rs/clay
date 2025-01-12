@@ -1,6 +1,6 @@
 use core::{ffi::c_void, ptr};
 
-use crate::{bindings::*, id::Id, DataRef, TypedConfig};
+use crate::{bindings::*, mem, DataRef, TypedConfig};
 
 use super::ElementConfigType;
 
@@ -20,12 +20,12 @@ impl Custom {
         self
     }
 
-    pub fn end(&self, id: Id) -> TypedConfig {
-        let memory = unsafe { Clay__StoreCustomElementConfig((*self).into()) };
+    pub fn end(self) -> TypedConfig {
+        let memory = unsafe { Clay__StoreCustomElementConfig((self).into()) };
 
         TypedConfig {
             config_memory: memory as _,
-            id: id.into(),
+            id: mem::zeroed_init(),
             config_type: ElementConfigType::Image as _,
         }
     }

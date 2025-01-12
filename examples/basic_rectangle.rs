@@ -1,6 +1,7 @@
 use clay_layout::{
     elements::{rectangle::Rectangle, CornerRadius},
     fixed,
+    id::Id,
     layout::Layout,
     Clay,
 };
@@ -16,11 +17,12 @@ fn main() {
     // The Layout makes the rectangle have a width and height of 50.
     clay.with(
         [
+            Id::new("red_rectangle"),
             Layout::new().width(fixed!(50.)).height(fixed!(50.)).end(),
             Rectangle::new()
                 .color((0xFF, 0x00, 0x00).into())
                 .corner_radius(CornerRadius::All(5.))
-                .end("Red Rectangle".into()),
+                .end(),
         ],
         |_| {},
     );

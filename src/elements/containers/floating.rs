@@ -1,9 +1,8 @@
 use crate::{
     bindings::*,
     elements::ElementConfigType,
-    id::Id,
     math::{Dimensions, Vector2},
-    TypedConfig,
+    mem, TypedConfig,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -84,12 +83,12 @@ impl FloatingContainer {
         self
     }
 
-    pub fn end(&self, id: Id) -> TypedConfig {
-        let memory = unsafe { Clay__StoreFloatingElementConfig((*self).into()) };
+    pub fn end(self) -> TypedConfig {
+        let memory = unsafe { Clay__StoreFloatingElementConfig((self).into()) };
 
         TypedConfig {
             config_memory: memory as _,
-            id: id.into(),
+            id: mem::zeroed_init(),
             config_type: ElementConfigType::FloatingContainer as _,
         }
     }

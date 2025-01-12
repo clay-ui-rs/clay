@@ -14,7 +14,6 @@ mod mem;
 
 use elements::{text::TextElementConfig, ElementConfigType};
 use errors::Error;
-use id::Id;
 use math::{Dimensions, Vector2};
 use render_commands::RenderCommand;
 
@@ -193,8 +192,8 @@ impl<'a> Clay<'a> {
         unsafe { Clay_Hovered() }
     }
 
-    pub fn pointer_over(&self, id: Id) -> bool {
-        unsafe { Clay_PointerOver(id.into()) }
+    pub fn pointer_over(&self, cfg: TypedConfig) -> bool {
+        unsafe { Clay_PointerOver(cfg.id) }
     }
 
     pub fn begin(&self) {
@@ -296,27 +295,25 @@ mod tests {
 
         clay.with(
             [
+                Id::new("parent_rect"),
                 Layout::new()
                     .width(Sizing::Fixed(100.0))
                     .height(Sizing::Fixed(100.0))
                     .padding(Padding::new(10, 10))
                     .end(),
-                Rectangle::new()
-                    .color(Color::rgb(255., 255., 255.))
-                    .end(Id::new("parent_rect")),
+                Rectangle::new().color(Color::rgb(255., 255., 255.)).end(),
                 // FloatingContainer::new().end(Id::new("tegfddgftds"))
             ],
             |clay| {
                 clay.with(
                     [
+                        Id::new("rect_under_rect"),
                         Layout::new()
                             .width(Sizing::Fixed(100.0))
                             .height(Sizing::Fixed(100.0))
                             .padding(Padding::new(10, 10))
                             .end(),
-                        Rectangle::new()
-                            .color(Color::rgb(255., 255., 255.))
-                            .end(Id::new("rect_under_rect")),
+                        Rectangle::new().color(Color::rgb(255., 255., 255.)).end(),
                     ],
                     |_clay| {},
                 );
@@ -331,22 +328,22 @@ mod tests {
         );
         clay.with(
             [
+                Id::new_index("Border_container", 1),
                 Layout::new().padding(Padding::new(16, 16)).end(),
                 BorderContainer::new()
                     .all_directions(2, Color::rgb(255., 255., 0.))
                     .corner_radius(CornerRadius::All(25.))
-                    .end(Id::new_index("Border_container", 1)),
+                    .end(),
             ],
             |clay| {
                 clay.with(
                     [
+                        Id::new("rect_under_border"),
                         Layout::new()
                             .width(Sizing::Fixed(50.0))
                             .height(Sizing::Fixed(50.0))
                             .end(),
-                        Rectangle::new()
-                            .color(Color::rgb(0., 255., 255.))
-                            .end(Id::new("rect_under_border")),
+                        Rectangle::new().color(Color::rgb(0., 255., 255.)).end(),
                     ],
                     |_clay| {},
                 );
