@@ -14,7 +14,7 @@ impl Id {
         Self::new_index_internal(label, index)
     }
 
-    fn new_index_internal(label: &str, index: u32) -> TypedConfig {
+    fn new_index_internal(label: &'static str, index: u32) -> TypedConfig {
         let id = unsafe { Clay__HashString(label.into(), index, 0) };
         TypedConfig {
             config_memory: core::ptr::null_mut(),
