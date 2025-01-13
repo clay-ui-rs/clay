@@ -21,8 +21,8 @@ impl ScrollContainer {
         self
     }
 
-    pub fn end(self) -> TypedConfig {
-        let memory = unsafe { Clay__StoreScrollElementConfig((self).into()) };
+    pub fn end(&self) -> TypedConfig {
+        let memory = unsafe { Clay__StoreScrollElementConfig((*self).into()) };
 
         TypedConfig {
             config_memory: memory as _,

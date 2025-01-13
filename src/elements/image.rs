@@ -26,8 +26,8 @@ impl Image {
         self
     }
 
-    pub fn end(self) -> TypedConfig {
-        let memory = unsafe { Clay__StoreImageElementConfig((self).into()) };
+    pub fn end(&self) -> TypedConfig {
+        let memory = unsafe { Clay__StoreImageElementConfig((*self).into()) };
 
         TypedConfig {
             config_memory: memory as _,

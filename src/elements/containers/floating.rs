@@ -83,8 +83,8 @@ impl FloatingContainer {
         self
     }
 
-    pub fn end(self) -> TypedConfig {
-        let memory = unsafe { Clay__StoreFloatingElementConfig((self).into()) };
+    pub fn end(&self) -> TypedConfig {
+        let memory = unsafe { Clay__StoreFloatingElementConfig((*self).into()) };
 
         TypedConfig {
             config_memory: memory as _,
