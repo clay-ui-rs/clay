@@ -197,7 +197,7 @@ impl<'a> Clay<'a> {
     }
 
     fn get_element_data(id: TypedConfig) -> Clay_ElementData {
-        unsafe { Clay_GetElementData(id.id).into() }
+        unsafe { Clay_GetElementData(id.id) }
     }
 
     pub fn get_bounding_box(&self, id: TypedConfig) -> Option<BoundingBox> {
