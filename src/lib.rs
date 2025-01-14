@@ -14,7 +14,7 @@ mod mem;
 
 use elements::{text::TextElementConfig, ElementConfigType};
 use errors::Error;
-use math::{Dimensions, Vector2, BoundingBox};
+use math::{BoundingBox, Dimensions, Vector2};
 use render_commands::RenderCommand;
 
 use crate::bindings::*;

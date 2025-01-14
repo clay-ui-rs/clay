@@ -10,7 +10,12 @@ pub struct Padding {
 
 impl Padding {
     pub fn new_rect(left: u16, right: u16, top: u16, bottom: u16) -> Self {
-        Self { left, right, top, bottom }
+        Self {
+            left,
+            right,
+            top,
+            bottom,
+        }
     }
 
     pub fn all(value: u16) -> Self {
