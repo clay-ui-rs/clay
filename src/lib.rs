@@ -14,7 +14,7 @@ mod mem;
 
 use elements::{text::TextElementConfig, ElementConfigType};
 use errors::Error;
-use math::{Dimensions, Vector2};
+use math::{Dimensions, Vector2, BoundingBox};
 use render_commands::RenderCommand;
 
 use crate::bindings::*;
@@ -196,6 +196,20 @@ impl<'a> Clay<'a> {
         unsafe { Clay_PointerOver(cfg.id) }
     }
 
+    fn get_element_data(id: TypedConfig) -> Clay_ElementData {
+        unsafe { Clay_GetElementData(id.id).into() }
+    }
+
+    pub fn get_bounding_box(&self, id: TypedConfig) -> Option<BoundingBox> {
+        let element_data = Self::get_element_data(id);
+
+        if element_data.found {
+            Some(element_data.boundingBox.into())
+        } else {
+            None
+        }
+    }
+
     pub fn begin(&self) {
         unsafe { Clay_BeginLayout() };
     }
@@ -299,7 +313,7 @@ mod tests {
                 Layout::new()
                     .width(Sizing::Fixed(100.0))
                     .height(Sizing::Fixed(100.0))
-                    .padding(Padding::new(10, 10))
+                    .padding(Padding::all(10))
                     .end(),
                 Rectangle::new().color(Color::rgb(255., 255., 255.)).end(),
                 // FloatingContainer::new().end(Id::new("tegfddgftds"))
@@ -311,7 +325,7 @@ mod tests {
                         Layout::new()
                             .width(Sizing::Fixed(100.0))
                             .height(Sizing::Fixed(100.0))
-                            .padding(Padding::new(10, 10))
+                            .padding(Padding::all(10))
                             .end(),
                         Rectangle::new().color(Color::rgb(255., 255., 255.)).end(),
                     ],
@@ -329,7 +343,7 @@ mod tests {
         clay.with(
             [
                 Id::new_index("Border_container", 1),
-                Layout::new().padding(Padding::new(16, 16)).end(),
+                Layout::new().padding(Padding::all(16)).end(),
                 BorderContainer::new()
                     .all_directions(2, Color::rgb(255., 255., 0.))
                     .corner_radius(CornerRadius::All(25.))

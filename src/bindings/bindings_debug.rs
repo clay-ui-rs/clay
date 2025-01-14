@@ -1090,15 +1090,20 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Clay_Padding {
-    pub x: u16,
-    pub y: u16,
+    pub left: u16,
+    pub right: u16,
+    pub top: u16,
+    pub bottom: u16,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of Clay_Padding"][::core::mem::size_of::<Clay_Padding>() - 4usize];
+    ["Size of Clay_Padding"][::core::mem::size_of::<Clay_Padding>() - 8usize];
     ["Alignment of Clay_Padding"][::core::mem::align_of::<Clay_Padding>() - 2usize];
-    ["Offset of field: Clay_Padding::x"][::core::mem::offset_of!(Clay_Padding, x) - 0usize];
-    ["Offset of field: Clay_Padding::y"][::core::mem::offset_of!(Clay_Padding, y) - 2usize];
+    ["Offset of field: Clay_Padding::left"][::core::mem::offset_of!(Clay_Padding, left) - 0usize];
+    ["Offset of field: Clay_Padding::right"][::core::mem::offset_of!(Clay_Padding, right) - 2usize];
+    ["Offset of field: Clay_Padding::top"][::core::mem::offset_of!(Clay_Padding, top) - 4usize];
+    ["Offset of field: Clay_Padding::bottom"]
+        [::core::mem::offset_of!(Clay_Padding, bottom) - 6usize];
 };
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1108,7 +1113,8 @@ pub struct Clay__AlignClay_Padding {
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of Clay__AlignClay_Padding"][::core::mem::size_of::<Clay__AlignClay_Padding>() - 6usize];
+    ["Size of Clay__AlignClay_Padding"]
+        [::core::mem::size_of::<Clay__AlignClay_Padding>() - 10usize];
     ["Alignment of Clay__AlignClay_Padding"]
         [::core::mem::align_of::<Clay__AlignClay_Padding>() - 2usize];
     ["Offset of field: Clay__AlignClay_Padding::c"]
@@ -1124,7 +1130,7 @@ pub struct Clay__Clay_PaddingWrapper {
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of Clay__Clay_PaddingWrapper"]
-        [::core::mem::size_of::<Clay__Clay_PaddingWrapper>() - 4usize];
+        [::core::mem::size_of::<Clay__Clay_PaddingWrapper>() - 8usize];
     ["Alignment of Clay__Clay_PaddingWrapper"]
         [::core::mem::align_of::<Clay__Clay_PaddingWrapper>() - 2usize];
     ["Offset of field: Clay__Clay_PaddingWrapper::wrapped"]
@@ -1141,18 +1147,18 @@ pub struct Clay_LayoutConfig {
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of Clay_LayoutConfig"][::core::mem::size_of::<Clay_LayoutConfig>() - 36usize];
+    ["Size of Clay_LayoutConfig"][::core::mem::size_of::<Clay_LayoutConfig>() - 40usize];
     ["Alignment of Clay_LayoutConfig"][::core::mem::align_of::<Clay_LayoutConfig>() - 4usize];
     ["Offset of field: Clay_LayoutConfig::sizing"]
         [::core::mem::offset_of!(Clay_LayoutConfig, sizing) - 0usize];
     ["Offset of field: Clay_LayoutConfig::padding"]
         [::core::mem::offset_of!(Clay_LayoutConfig, padding) - 24usize];
     ["Offset of field: Clay_LayoutConfig::childGap"]
-        [::core::mem::offset_of!(Clay_LayoutConfig, childGap) - 28usize];
+        [::core::mem::offset_of!(Clay_LayoutConfig, childGap) - 32usize];
     ["Offset of field: Clay_LayoutConfig::childAlignment"]
-        [::core::mem::offset_of!(Clay_LayoutConfig, childAlignment) - 30usize];
+        [::core::mem::offset_of!(Clay_LayoutConfig, childAlignment) - 34usize];
     ["Offset of field: Clay_LayoutConfig::layoutDirection"]
-        [::core::mem::offset_of!(Clay_LayoutConfig, layoutDirection) - 32usize];
+        [::core::mem::offset_of!(Clay_LayoutConfig, layoutDirection) - 36usize];
 };
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -1163,7 +1169,7 @@ pub struct Clay__AlignClay_LayoutConfig {
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of Clay__AlignClay_LayoutConfig"]
-        [::core::mem::size_of::<Clay__AlignClay_LayoutConfig>() - 40usize];
+        [::core::mem::size_of::<Clay__AlignClay_LayoutConfig>() - 44usize];
     ["Alignment of Clay__AlignClay_LayoutConfig"]
         [::core::mem::align_of::<Clay__AlignClay_LayoutConfig>() - 4usize];
     ["Offset of field: Clay__AlignClay_LayoutConfig::c"]
@@ -1179,7 +1185,7 @@ pub struct Clay__Clay_LayoutConfigWrapper {
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of Clay__Clay_LayoutConfigWrapper"]
-        [::core::mem::size_of::<Clay__Clay_LayoutConfigWrapper>() - 36usize];
+        [::core::mem::size_of::<Clay__Clay_LayoutConfigWrapper>() - 40usize];
     ["Alignment of Clay__Clay_LayoutConfigWrapper"]
         [::core::mem::align_of::<Clay__Clay_LayoutConfigWrapper>() - 4usize];
     ["Offset of field: Clay__Clay_LayoutConfigWrapper::wrapped"]
@@ -1932,6 +1938,52 @@ const _: () = {
     ["Offset of field: Clay__Clay_ScrollContainerDataWrapper::wrapped"]
         [::core::mem::offset_of!(Clay__Clay_ScrollContainerDataWrapper, wrapped) - 0usize];
 };
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Clay_ElementData {
+    pub boundingBox: Clay_BoundingBox,
+    pub found: bool,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of Clay_ElementData"][::core::mem::size_of::<Clay_ElementData>() - 20usize];
+    ["Alignment of Clay_ElementData"][::core::mem::align_of::<Clay_ElementData>() - 4usize];
+    ["Offset of field: Clay_ElementData::boundingBox"]
+        [::core::mem::offset_of!(Clay_ElementData, boundingBox) - 0usize];
+    ["Offset of field: Clay_ElementData::found"]
+        [::core::mem::offset_of!(Clay_ElementData, found) - 16usize];
+};
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Clay__AlignClay_ElementData {
+    pub c: ::core::ffi::c_char,
+    pub x: Clay_ElementData,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of Clay__AlignClay_ElementData"]
+        [::core::mem::size_of::<Clay__AlignClay_ElementData>() - 24usize];
+    ["Alignment of Clay__AlignClay_ElementData"]
+        [::core::mem::align_of::<Clay__AlignClay_ElementData>() - 4usize];
+    ["Offset of field: Clay__AlignClay_ElementData::c"]
+        [::core::mem::offset_of!(Clay__AlignClay_ElementData, c) - 0usize];
+    ["Offset of field: Clay__AlignClay_ElementData::x"]
+        [::core::mem::offset_of!(Clay__AlignClay_ElementData, x) - 4usize];
+};
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Clay__Clay_ElementDataWrapper {
+    pub wrapped: Clay_ElementData,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of Clay__Clay_ElementDataWrapper"]
+        [::core::mem::size_of::<Clay__Clay_ElementDataWrapper>() - 20usize];
+    ["Alignment of Clay__Clay_ElementDataWrapper"]
+        [::core::mem::align_of::<Clay__Clay_ElementDataWrapper>() - 4usize];
+    ["Offset of field: Clay__Clay_ElementDataWrapper::wrapped"]
+        [::core::mem::offset_of!(Clay__Clay_ElementDataWrapper, wrapped) - 0usize];
+};
 pub const Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_NONE: Clay_RenderCommandType = 0;
 pub const Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_RECTANGLE: Clay_RenderCommandType = 1;
 pub const Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_BORDER: Clay_RenderCommandType = 2;
@@ -2347,6 +2399,9 @@ unsafe extern "C" {
     pub fn Clay_GetElementIdWithIndex(idString: Clay_String, index: u32) -> Clay_ElementId;
 }
 unsafe extern "C" {
+    pub fn Clay_GetElementData(id: Clay_ElementId) -> Clay_ElementData;
+}
+unsafe extern "C" {
     pub fn Clay_Hovered() -> bool;
 }
 unsafe extern "C" {
@@ -2410,6 +2465,9 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn Clay_SetMaxMeasureTextCacheWordCount(maxMeasureTextCacheWordCount: i32);
+}
+unsafe extern "C" {
+    pub fn Clay_ResetMeasureTextCache();
 }
 unsafe extern "C" {
     pub fn Clay__OpenElement();
