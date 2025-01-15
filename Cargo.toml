@@ -1,9 +1,9 @@
 [package]
 name = "clay-layout"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Rust bindings for Clay, a UI layout library written in C."
-keywords = [ "clay", "ui", "layout", "bindings" ]
+keywords = [ "clay", "ui", "layout", "bindings", "no_std" ]
 repository = "https://github.com/clay-ui-rs/clay"
 readme = "README.md"
 license-file = "LICENSE.md"
