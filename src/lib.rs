@@ -338,7 +338,7 @@ mod tests {
                 .end(),
             Rectangle::new().color(Color::rgb(255., 255., 255.)).end()], |clay| 
         {
-            clay.with(Some("rect_under_rect"), [
+            clay.with(None, [
                 Layout::new()
                     .width(Sizing::Fixed(100.0))
                     .height(Sizing::Fixed(100.0))
