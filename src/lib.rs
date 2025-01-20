@@ -2,6 +2,7 @@
 
 pub mod bindings;
 
+pub mod id;
 pub mod color;
 pub mod elements;
 pub mod errors;
