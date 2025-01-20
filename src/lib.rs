@@ -289,16 +289,40 @@ impl<'a> Clay<'a> {
     /// ```
     /// // TODO: Add Example
     /// ```
-    pub fn with<F: FnOnce(&Clay), const N: usize>(&self, configs: [TypedConfig; N], f: F) {
+    pub fn with<F: FnOnce(&Clay), const N: usize>(
+        &self,
+        id: Option<&'a str>,
+        configs: [TypedConfig; N],
+        f: F,
+    ) {
+        // Mapping `id: Option<&str>` to `Option<(&str, u32)>` with index being zero
+        let id: Option<(&str, u32)> = id.map(|name| (name, 0));
+        self.with_id_index(id, configs, f)
+    }
+
+    /// Create an element, passing it's config and a function to add childrens
+    /// ```
+    /// // TODO: Add Example
+    /// ```
+    pub fn with_id_index<F: FnOnce(&Clay), const N: usize>(
+        &self,
+        id: Option<(&'a str, u32)>,
+        configs: [TypedConfig; N],
+        f: F,
+    ) {
         unsafe {
             Clay_SetCurrentContext(self.context);
             Clay__OpenElement()
         };
 
+        if let Some((id_name, index)) = id {
+            unsafe {
+                Clay__AttachId(Clay__HashString(id_name.into(), index, 0));
+            }
+        }
+
         for config in configs {
-            if config.config_type == ElementConfigType::Id as _ {
-                unsafe { Clay__AttachId(config.id) };
-            } else if config.config_type == ElementConfigType::Layout as _ {
+            if config.config_type == ElementConfigType::Layout as _ {
                 unsafe { Clay__AttachLayoutConfig(config.config_memory as _) };
             } else {
                 unsafe {
@@ -363,7 +387,6 @@ mod tests {
     use elements::{
         containers::border::BorderContainer, rectangle::Rectangle, text::Text, CornerRadius,
     };
-    use id::Id;
     use layout::{padding::Padding, sizing::Sizing, Layout};
 
     use super::*;
@@ -376,6 +399,7 @@ mod tests {
     */
 
     #[test]
+    #[rustfmt::skip]
     fn test_begin() {
         let mut callback_data = 0u32;
 
@@ -392,14 +416,21 @@ mod tests {
 
         clay.begin();
 
-        clay.with(
-            [
-                Id::new("parent_rect"),
+        clay.with(Some("parent_rect"), [
+            Layout::new()
+                .width(Sizing::Fixed(100.0))
+                .height(Sizing::Fixed(100.0))
+                .padding(Padding::all(10))
+                .end(),
+            Rectangle::new().color(Color::rgb(255., 255., 255.)).end()], |clay| 
+        {
+            clay.with(None, [
                 Layout::new()
                     .width(Sizing::Fixed(100.0))
                     .height(Sizing::Fixed(100.0))
                     .padding(Padding::all(10))
                     .end(),
+
                 Rectangle::new().color(Color::rgb(255., 255., 255.)).end(),
                 // FloatingContainer::new().end(Id::new("tegfddgftds"))
             ],
@@ -432,23 +463,24 @@ mod tests {
                 Layout::new().padding(Padding::all(16)).end(),
                 BorderContainer::new()
                     .all_directions(2, Color::rgb(255., 255., 0.))
-                    .corner_radius(CornerRadius::All(25.))
+            );
+        });
+
+        clay.with_id_index(Some(("Border_container", 1)), [
+            Layout::new().padding(Padding::all(16)).end(),
+            BorderContainer::new()
+                .all_directions(2, Color::rgb(255., 255., 0.))
+                .corner_radius(CornerRadius::All(25.))
+                .end()], |clay| 
+        {
+            clay.with(Some("rect_under_border"), [
+                Layout::new()
+                    .width(Sizing::Fixed(50.0))
+                    .height(Sizing::Fixed(50.0))
                     .end(),
-            ],
-            |clay| {
-                clay.with(
-                    [
-                        Id::new("rect_under_border"),
-                        Layout::new()
-                            .width(Sizing::Fixed(50.0))
-                            .height(Sizing::Fixed(50.0))
-                            .end(),
-                        Rectangle::new().color(Color::rgb(0., 255., 255.)).end(),
-                    ],
-                    |_clay| {},
-                );
-            },
-        );
+                Rectangle::new().color(Color::rgb(0., 255., 255.)).end()], |_clay| {},
+            );
+        });
 
         let items = clay.end();
 
