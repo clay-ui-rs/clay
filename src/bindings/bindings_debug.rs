@@ -365,6 +365,55 @@ const _: () = {
 };
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct Clay_StringSlice {
+    pub length: i32,
+    pub chars: *const ::core::ffi::c_char,
+    pub baseChars: *const ::core::ffi::c_char,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of Clay_StringSlice"][::core::mem::size_of::<Clay_StringSlice>() - 24usize];
+    ["Alignment of Clay_StringSlice"][::core::mem::align_of::<Clay_StringSlice>() - 8usize];
+    ["Offset of field: Clay_StringSlice::length"]
+        [::core::mem::offset_of!(Clay_StringSlice, length) - 0usize];
+    ["Offset of field: Clay_StringSlice::chars"]
+        [::core::mem::offset_of!(Clay_StringSlice, chars) - 8usize];
+    ["Offset of field: Clay_StringSlice::baseChars"]
+        [::core::mem::offset_of!(Clay_StringSlice, baseChars) - 16usize];
+};
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Clay__AlignClay_StringSlice {
+    pub c: ::core::ffi::c_char,
+    pub x: Clay_StringSlice,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of Clay__AlignClay_StringSlice"]
+        [::core::mem::size_of::<Clay__AlignClay_StringSlice>() - 32usize];
+    ["Alignment of Clay__AlignClay_StringSlice"]
+        [::core::mem::align_of::<Clay__AlignClay_StringSlice>() - 8usize];
+    ["Offset of field: Clay__AlignClay_StringSlice::c"]
+        [::core::mem::offset_of!(Clay__AlignClay_StringSlice, c) - 0usize];
+    ["Offset of field: Clay__AlignClay_StringSlice::x"]
+        [::core::mem::offset_of!(Clay__AlignClay_StringSlice, x) - 8usize];
+};
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Clay__Clay_StringSliceWrapper {
+    pub wrapped: Clay_StringSlice,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of Clay__Clay_StringSliceWrapper"]
+        [::core::mem::size_of::<Clay__Clay_StringSliceWrapper>() - 24usize];
+    ["Alignment of Clay__Clay_StringSliceWrapper"]
+        [::core::mem::align_of::<Clay__Clay_StringSliceWrapper>() - 8usize];
+    ["Offset of field: Clay__Clay_StringSliceWrapper::wrapped"]
+        [::core::mem::offset_of!(Clay__Clay_StringSliceWrapper, wrapped) - 0usize];
+};
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
 pub struct Clay_Context {
     _unused: [u8; 0],
 }
@@ -2426,17 +2475,20 @@ unsafe extern "C" {
     pub fn Clay_SetMeasureTextFunction(
         measureTextFunction: ::core::option::Option<
             unsafe extern "C" fn(
-                text: *mut Clay_String,
+                text: Clay_StringSlice,
                 config: *mut Clay_TextElementConfig,
+                userData: usize,
             ) -> Clay_Dimensions,
         >,
+        userData: usize,
     );
 }
 unsafe extern "C" {
     pub fn Clay_SetQueryScrollOffsetFunction(
         queryScrollOffsetFunction: ::core::option::Option<
-            unsafe extern "C" fn(elementId: u32) -> Clay_Vector2,
+            unsafe extern "C" fn(elementId: u32, userData: usize) -> Clay_Vector2,
         >,
+        userData: usize,
     );
 }
 unsafe extern "C" {
