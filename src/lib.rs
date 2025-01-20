@@ -430,40 +430,23 @@ mod tests {
                     .height(Sizing::Fixed(100.0))
                     .padding(Padding::all(10))
                     .end(),
-
-                Rectangle::new().color(Color::rgb(255., 255., 255.)).end(),
-                // FloatingContainer::new().end(Id::new("tegfddgftds"))
-            ],
-            |clay| {
-                clay.with(
-                    [
-                        Id::new("rect_under_rect"),
-                        Layout::new()
-                            .width(Sizing::Fixed(100.0))
-                            .height(Sizing::Fixed(100.0))
-                            .padding(Padding::all(10))
-                            .end(),
-                        Rectangle::new().color(Color::rgb(255., 255., 255.)).end(),
-                    ],
-                    |clay| {
-                        clay.text(
-                            "test",
-                            Text::new()
-                                .color(Color::rgb(255., 255., 255.))
-                                .font_size(24)
-                                .end(),
-                        );
+                Rectangle::new().color(Color::rgb(255., 255., 255.)).end()], |clay| 
+            {
+                clay.with(Some("rect_under_rect"), [
+                    Layout::new()
+                        .width(Sizing::Fixed(100.0))
+                        .height(Sizing::Fixed(100.0))
+                        .padding(Padding::all(10))
+                        .end(),
+                    Rectangle::new().color(Color::rgb(255., 255., 255.)).end()], |clay| 
+                    {
+                        clay.text("test", Text::new()
+                            .color(Color::rgb(255., 255., 255.))
+                            .font_size(24)
+                            .end());
                     },
                 );
-            },
-        );
-        clay.with(
-            [
-                Id::new_index("Border_container", 1),
-                Layout::new().padding(Padding::all(16)).end(),
-                BorderContainer::new()
-                    .all_directions(2, Color::rgb(255., 255., 0.))
-            );
+            });
         });
 
         clay.with_id_index(Some(("Border_container", 1)), [
