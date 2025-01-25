@@ -7,8 +7,8 @@ use crate::{
 
 #[derive(Debug, Clone, Copy)]
 pub struct Border {
-    width: u32,
-    color: Color,
+    pub width: u32,
+    pub color: Color,
 }
 
 impl Border {
