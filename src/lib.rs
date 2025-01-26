@@ -370,8 +370,20 @@ impl From<&str> for Clay_String {
         }
     }
 }
+
 impl From<Clay_String> for &str {
     fn from(value: Clay_String) -> Self {
+        unsafe {
+            core::str::from_utf8_unchecked(core::slice::from_raw_parts(
+                value.chars as *const u8,
+                value.length as _,
+            ))
+        }
+    }
+}
+
+impl From<Clay_StringSlice> for &str {
+    fn from(value: Clay_StringSlice) -> Self {
         unsafe {
             core::str::from_utf8_unchecked(core::slice::from_raw_parts(
                 value.chars as *const u8,

@@ -471,7 +471,8 @@ CLAY__TYPEDEF(Clay_RenderCommandType, CLAY_PACKED_ENUM {
 CLAY__TYPEDEF(Clay_RenderCommand, struct {
     Clay_BoundingBox boundingBox;
     Clay_ElementConfigUnion config;
-    Clay_String text; // TODO I wish there was a way to avoid having to have this on every render command
+    Clay_StringSlice text; // TODO I wish there was a way to avoid having to have this on every render command
+    int32_t zIndex;
     uint32_t id;
     Clay_RenderCommandType commandType;
 });
@@ -2257,12 +2258,6 @@ void Clay__SizeContainersAlongAxis(bool xAxis) {
                     *childSize = (parentSize - totalPaddingAndChildGaps) * childSizing.size.percent;
                     if (sizingAlongAxis) {
                         innerContentSize += *childSize;
-                        if (childOffset > 0) {
-                            innerContentSize += parentChildGap; // For children after index 0, the childAxisOffset is the gap from the previous child
-                            totalPaddingAndChildGaps += parentChildGap;
-                        }
-                    } else {
-                        innerContentSize = CLAY__MAX(*childSize, innerContentSize);
                     }
                 }
             }
@@ -2483,9 +2478,6 @@ void Clay__CalculateFinalLayout() {
 
         // DFS node has been visited, this is on the way back up to the root
         Clay_LayoutConfig *layoutConfig = currentElement->layoutConfig;
-        if (layoutConfig->sizing.height.type == CLAY__SIZING_TYPE_PERCENT) {
-            continue;
-        }
         if (layoutConfig->layoutDirection == CLAY_LEFT_TO_RIGHT) {
             // Resize any parent containers that have grown in height along their non layout axis
             for (int32_t j = 0; j < currentElement->childrenOrTextContent.children.length; ++j) {
@@ -2609,6 +2601,7 @@ void Clay__CalculateFinalLayout() {
                 Clay__AddRenderCommand(CLAY__INIT(Clay_RenderCommand) {
                     .boundingBox = clipHashMapItem->boundingBox,
                     .config = { .scrollElementConfig = Clay__StoreScrollElementConfig(CLAY__INIT(Clay_ScrollElementConfig)CLAY__DEFAULT_STRUCT) },
+                    .zIndex = root->zIndex,
                     .id = Clay__RehashWithNumber(rootElement->id, 10), // TODO need a better strategy for managing derived ids
                     .commandType = CLAY_RENDER_COMMAND_TYPE_SCISSOR_START,
                 });
@@ -2741,7 +2734,8 @@ void Clay__CalculateFinalLayout() {
                                 Clay__AddRenderCommand(CLAY__INIT(Clay_RenderCommand) {
                                     .boundingBox = { currentElementBoundingBox.x, currentElementBoundingBox.y + yPosition, wrappedLine.dimensions.width, wrappedLine.dimensions.height }, // TODO width
                                     .config = configUnion,
-                                    .text = wrappedLine.line,
+                                    .text = CLAY__INIT(Clay_StringSlice) { .length = wrappedLine.line.length, .chars = wrappedLine.line.chars, .baseChars = currentElement->childrenOrTextContent.textElementData->text.chars },
+                                    .zIndex = root->zIndex,
                                     .id = Clay__HashNumber(lineIndex, currentElement->id).id,
                                     .commandType = CLAY_RENDER_COMMAND_TYPE_TEXT,
                                 });
@@ -3954,7 +3948,8 @@ Clay_RenderCommandArray Clay_EndLayout() {
         context->warningsEnabled = true;
     }
     if (context->booleanWarnings.maxElementsExceeded) {
-        Clay__AddRenderCommand(CLAY__INIT(Clay_RenderCommand ) { .boundingBox = { context->layoutDimensions.width / 2 - 59 * 4, context->layoutDimensions.height / 2, 0, 0 },  .config = { .textElementConfig = &Clay__DebugView_ErrorTextConfig }, .text = CLAY_STRING("Clay Error: Layout elements exceeded Clay__maxElementCount"), .commandType = CLAY_RENDER_COMMAND_TYPE_TEXT });
+        Clay_String message = CLAY_STRING("Clay Error: Layout elements exceeded Clay__maxElementCount");
+        Clay__AddRenderCommand(CLAY__INIT(Clay_RenderCommand ) { .boundingBox = { context->layoutDimensions.width / 2 - 59 * 4, context->layoutDimensions.height / 2, 0, 0 },  .config = { .textElementConfig = &Clay__DebugView_ErrorTextConfig }, .text = CLAY__INIT(Clay_StringSlice) { .length = message.length, .chars = message.chars, .baseChars = message.chars }, .commandType = CLAY_RENDER_COMMAND_TYPE_TEXT });
     } else {
         Clay__CalculateFinalLayout();
     }

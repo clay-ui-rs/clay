@@ -43,7 +43,7 @@ impl From<&Clay_RenderCommand> for RenderCommandConfig<'_> {
                 &mut *(value.config.borderElementConfig)
             })),
             RenderCommandType::Text => Self::Text(
-                <Clay_String as Into<&str>>::into(value.text),
+                <Clay_StringSlice as Into<&str>>::into(value.text),
                 Text::from(*unsafe { &mut *(value.config.textElementConfig) }),
             ),
             RenderCommandType::Image => Self::Image(Image::from(*unsafe {
@@ -61,6 +61,7 @@ impl From<&Clay_RenderCommand> for RenderCommandConfig<'_> {
 #[derive(Debug, Clone)]
 pub struct RenderCommand<'a> {
     pub id: u32,
+    pub z_index: i32,
     pub bounding_box: BoundingBox,
     pub config: RenderCommandConfig<'a>,
 }
@@ -69,6 +70,7 @@ impl From<Clay_RenderCommand> for RenderCommand<'_> {
     fn from(value: Clay_RenderCommand) -> Self {
         Self {
             id: value.id,
+            z_index: value.zIndex,
             bounding_box: value.boundingBox.into(),
             config: (&value).into(),
         }

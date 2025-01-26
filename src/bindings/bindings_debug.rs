@@ -2078,13 +2078,14 @@ const _: () = {
 pub struct Clay_RenderCommand {
     pub boundingBox: Clay_BoundingBox,
     pub config: Clay_ElementConfigUnion,
-    pub text: Clay_String,
+    pub text: Clay_StringSlice,
+    pub zIndex: i32,
     pub id: u32,
     pub commandType: Clay_RenderCommandType,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of Clay_RenderCommand"][::core::mem::size_of::<Clay_RenderCommand>() - 48usize];
+    ["Size of Clay_RenderCommand"][::core::mem::size_of::<Clay_RenderCommand>() - 64usize];
     ["Alignment of Clay_RenderCommand"][::core::mem::align_of::<Clay_RenderCommand>() - 8usize];
     ["Offset of field: Clay_RenderCommand::boundingBox"]
         [::core::mem::offset_of!(Clay_RenderCommand, boundingBox) - 0usize];
@@ -2092,10 +2093,12 @@ const _: () = {
         [::core::mem::offset_of!(Clay_RenderCommand, config) - 16usize];
     ["Offset of field: Clay_RenderCommand::text"]
         [::core::mem::offset_of!(Clay_RenderCommand, text) - 24usize];
+    ["Offset of field: Clay_RenderCommand::zIndex"]
+        [::core::mem::offset_of!(Clay_RenderCommand, zIndex) - 48usize];
     ["Offset of field: Clay_RenderCommand::id"]
-        [::core::mem::offset_of!(Clay_RenderCommand, id) - 40usize];
+        [::core::mem::offset_of!(Clay_RenderCommand, id) - 52usize];
     ["Offset of field: Clay_RenderCommand::commandType"]
-        [::core::mem::offset_of!(Clay_RenderCommand, commandType) - 44usize];
+        [::core::mem::offset_of!(Clay_RenderCommand, commandType) - 56usize];
 };
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -2106,7 +2109,7 @@ pub struct Clay__AlignClay_RenderCommand {
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of Clay__AlignClay_RenderCommand"]
-        [::core::mem::size_of::<Clay__AlignClay_RenderCommand>() - 56usize];
+        [::core::mem::size_of::<Clay__AlignClay_RenderCommand>() - 72usize];
     ["Alignment of Clay__AlignClay_RenderCommand"]
         [::core::mem::align_of::<Clay__AlignClay_RenderCommand>() - 8usize];
     ["Offset of field: Clay__AlignClay_RenderCommand::c"]
@@ -2122,7 +2125,7 @@ pub struct Clay__Clay_RenderCommandWrapper {
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of Clay__Clay_RenderCommandWrapper"]
-        [::core::mem::size_of::<Clay__Clay_RenderCommandWrapper>() - 48usize];
+        [::core::mem::size_of::<Clay__Clay_RenderCommandWrapper>() - 64usize];
     ["Alignment of Clay__Clay_RenderCommandWrapper"]
         [::core::mem::align_of::<Clay__Clay_RenderCommandWrapper>() - 8usize];
     ["Offset of field: Clay__Clay_RenderCommandWrapper::wrapped"]
