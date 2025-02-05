@@ -1,7 +1,8 @@
+
 use crate::bindings::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u32)]
+#[repr(u8)]
 pub enum ErrorType {
     /// Thrown if the text measurement function is never provided to clay and you try using
     /// `Clay::text`
@@ -29,7 +30,7 @@ pub struct Error<'a> {
 impl From<Clay_ErrorData> for Error<'_> {
     fn from(value: Clay_ErrorData) -> Self {
         Self {
-            type_: unsafe { core::mem::transmute::<u32, ErrorType>(value.errorType) },
+            type_: unsafe { core::mem::transmute::<u8, ErrorType>(value.errorType) },
             text: value.errorText.into(),
         }
     }

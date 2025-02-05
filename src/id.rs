@@ -1,26 +1,28 @@
-use crate::{bindings::*, ElementConfigType, TypedConfig};
+use crate::bindings::*;
 
-pub struct Id;
+pub struct Id {
+    pub(crate) id: Clay_ElementId,
+}
 
 impl Id {
     /// Creates a clay id using the `label`
     #[allow(clippy::new_ret_no_self)]
-    pub fn new(label: &str) -> TypedConfig {
+    pub(crate) fn new(label: &str) -> Id {
         Self::new_index(label, 0)
     }
 
     /// Creates a clay id using the `label` and the `index`
-    pub fn new_index(label: &str, index: u32) -> TypedConfig {
+    pub(crate) fn new_index(label: &str, index: u32) -> Id {
         Self::new_index_internal(label, index)
     }
 
-    fn new_index_internal(label: &str, index: u32) -> TypedConfig {
+    pub(crate) fn new_index_internal(label: &str, index: u32) -> Id {
         let id = unsafe { Clay__HashString(label.into(), index, 0) };
-        TypedConfig {
-            //
-            config_memory: core::ptr::null_mut(),
-            id,
-            config_type: ElementConfigType::Id as _,
-        }
+        Id { id }
+    }
+
+    pub(crate) fn new_index_local(label: &str, index: u32) -> Id {
+        let id = unsafe { Clay__HashString(label.into(), index, Clay__GetParentElementId()) };
+        Id { id }
     }
 }
