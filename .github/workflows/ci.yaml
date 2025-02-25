@@ -46,6 +46,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-build-
 
+      - name: Install X11 dependencies (Linux)
+        if: matrix.platform == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxi-dev libgl1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev
+
       - name: Install wasm32 target (if needed)
         if: matrix.feature == 'wasm'
         run: rustup target add wasm32-unknown-unknown
