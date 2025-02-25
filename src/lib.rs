@@ -1,7 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 pub mod bindings;
-
 pub mod color;
 pub mod elements;
 pub mod errors;
@@ -10,6 +9,9 @@ pub mod layout;
 pub mod math;
 pub mod render_commands;
 pub mod text;
+
+#[cfg(feature = "raylib-renderer")]
+pub mod raylib;
 
 mod mem;
 

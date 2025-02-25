@@ -1,9 +1,10 @@
 {
-    "files.associations": {
-        "*.sc": "plaintext",
-        ".mpmconfig": "json",
-        "*.gui": "html",
-        "*.pm": "json",
-        "clay.h": "c"
-    }
+  "files.associations": {
+    "*.sc": "plaintext",
+    ".mpmconfig": "json",
+    "*.gui": "html",
+    "*.pm": "json",
+    "clay.h": "c"
+  },
+  "rust-analyzer.cargo.features": ["raylib-renderer"]
 }
