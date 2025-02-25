@@ -6,7 +6,7 @@ on:
       - master
   pull_request:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   build:
@@ -20,60 +20,59 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: ${{ matrix.rust }}
-        components: rustfmt, clippy
-        override: true
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+          override: true
 
-    - name: Cache Cargo registry
-      uses: actions/cache@v3
-      with:
-        path: ~/.cargo/registry
-        key: ${{ runner.os }}-cargo-registry-${{ matrix.rust }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-registry-
+      - name: Cache Cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ matrix.rust }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
 
-    - name: Cache Cargo build
-      uses: actions/cache@v3
-      with:
-        path: target
-        key: ${{ runner.os }}-cargo-build-${{ matrix.rust }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-build-
+      - name: Cache Cargo build
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-${{ matrix.rust }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-
 
-    - name: Install wasm32 target (if needed)
-      if: matrix.feature == 'wasm'
-      run: rustup target add wasm32-unknown-unknown
+      - name: Install wasm32 target (if needed)
+        if: matrix.feature == 'wasm'
+        run: rustup target add wasm32-unknown-unknown
 
-    - name: Build (No features)
-      if: matrix.feature == 'default'
-      run: cargo build
+      - name: Build (No features)
+        if: matrix.feature == 'default'
+        run: cargo build
 
-    - name: Build (Debug)
-      if: matrix.feature == 'debug'
-      run: cargo build --features debug
+      - name: Build (Debug)
+        if: matrix.feature == 'debug'
+        run: cargo build --features debug
 
-    - name: Build (No std)
-      if: matrix.feature == 'no-std'
-      run: cargo build --no-default-features
+      - name: Build (No std)
+        if: matrix.feature == 'no-std'
+        run: cargo build --no-default-features
 
-    - name: Build (WASM)
-      if: matrix.feature == 'wasm'
-      run: cargo build --target wasm32-unknown-unknown
-    
-    - name: Run tests
-      run: cargo test
+      - name: Build (WASM)
+        if: matrix.feature == 'wasm'
+        run: cargo build --target wasm32-unknown-unknown
 
-    - name: Check Formatting
-      if: matrix.platform == 'ubuntu-latest'
-      run: cargo fmt --all -- --check
+      - name: Run tests
+        run: cargo test --features raylib-renderer
 
-    - name: Run Clippy Checks
-      if: matrix.platform == 'ubuntu-latest'
-      run: cargo clippy -- -D warnings
+      - name: Check Formatting
+        if: matrix.platform == 'ubuntu-latest'
+        run: cargo fmt --all -- --check
 
+      - name: Run Clippy Checks
+        if: matrix.platform == 'ubuntu-latest'
+        run: cargo clippy -- -D warnings
