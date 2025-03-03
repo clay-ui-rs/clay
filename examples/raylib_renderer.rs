@@ -2,7 +2,7 @@ use clay_layout::{grow, raylib::clay_raylib_render, Clay, Declaration};
 use raylib::prelude::*;
 
 pub fn main() {
-    let clay = Clay::new((800., 600.).into());
+    let mut clay = Clay::new((800., 600.).into());
 
     let (mut rl, thread) = raylib::init()
         .resizable()
@@ -18,7 +18,7 @@ pub fn main() {
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::WHITE);
 
-        clay.begin();
+        let mut clay = clay.begin::<_, ()>();
 
         #[rustfmt::skip]
         clay.with(
@@ -58,8 +58,6 @@ pub fn main() {
 
         let commands = clay.end();
 
-        if let Err(e) = clay_raylib_render(&mut d, commands) {
-            eprintln!("Error: {}", e);
-        };
+        clay_raylib_render(&mut d, commands, |_| {})
     }
 }

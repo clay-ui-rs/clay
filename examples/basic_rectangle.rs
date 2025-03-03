@@ -3,10 +3,10 @@ use clay_layout::{fixed, Clay, Declaration};
 #[rustfmt::skip]
 fn main() {
     // Create the clay instance
-    let clay = Clay::new((800., 600.).into());
+    let mut clay = Clay::new((800., 600.).into());
 
     // Begin the layout
-    clay.begin();
+    let mut clay = clay.begin::<(), ()>();
 
     // Adds a red rectangle with a corner radius of 5.
     // The Layout makes the rectangle have a width and height of 50.

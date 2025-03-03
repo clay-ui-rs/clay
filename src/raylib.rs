@@ -3,7 +3,6 @@ use raylib::{
     ffi::{BeginScissorMode, EndScissorMode},
     prelude::*,
 };
-use thiserror::Error;
 
 macro_rules! clay_to_raylib_color {
     ($color:expr) => {
@@ -28,7 +27,7 @@ macro_rules! clay_to_raylib_rect {
 }
 
 #[doc = "This is a direct* port of Clay's raylib renderer. See [the C implementation](https://github.com/nicbarker/clay/blob/main/renderers/raylib/clay_renderer_raylib.c) for more info."]
-pub fn clay_raylib_render<'a, CustomElementData>(
+pub fn clay_raylib_render<'a, CustomElementData: 'a>(
     d: &mut RaylibDrawHandle<'_>,
     render_commands: impl Iterator<Item = RenderCommand<'a, Texture2D, CustomElementData>>,
     mut handle_custom_element: impl FnMut(&CustomElementData) -> ()
@@ -224,7 +223,7 @@ pub fn clay_raylib_render<'a, CustomElementData>(
                     );
                 }
             }
-            RenderCommandConfig::Custom(custom) => handle_custom_element(custom),
+            RenderCommandConfig::Custom(custom) => handle_custom_element(custom.data),
             RenderCommandConfig::None() => {}
         }
     }
