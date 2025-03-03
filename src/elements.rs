@@ -1,15 +1,14 @@
-use crate::{bindings::*, color::Color, DataRef, Declaration, Dimensions, Vector2};
-use core::ffi::c_void;
+use crate::{bindings::*, color::Color, Declaration, Dimensions, Vector2};
 
 /// Builder for configuring border properties of a `Declaration`.
-pub struct BorderBuilder<'a> {
-    parent: &'a mut Declaration,
+pub struct BorderBuilder<'a, ImageElementData, CustomElementData> {
+    parent: &'a mut Declaration<ImageElementData, CustomElementData>,
 }
 
-impl BorderBuilder<'_> {
+impl<'a, ImageElementData, CustomElementData> BorderBuilder<'a, ImageElementData, CustomElementData> {
     /// Creates a new `BorderBuilder` with the given parent `Declaration`.
     #[inline]
-    pub fn new(parent: &mut Declaration) -> BorderBuilder {
+    pub fn new(parent: &'a mut Declaration<ImageElementData, CustomElementData>) -> Self {
         BorderBuilder { parent }
     }
 
@@ -67,20 +66,20 @@ impl BorderBuilder<'_> {
 
     /// Returns the modified `Declaration`.
     #[inline]
-    pub fn end(&mut self) -> &mut Declaration {
+    pub fn end(&mut self) -> &mut Declaration<ImageElementData, CustomElementData> {
         self.parent
     }
 }
 
 /// Builder for configuring image properties in a `Declaration`.
-pub struct ImageBuilder<'a> {
-    parent: &'a mut Declaration,
+pub struct ImageBuilder<'a, ImageElementData, CustomElementData> {
+    parent: &'a mut Declaration<ImageElementData, CustomElementData>,
 }
 
-impl ImageBuilder<'_> {
+impl<'a, ImageElementData, CustomElementData> ImageBuilder<'a, ImageElementData, CustomElementData> {
     /// Creates a new `ImageBuilder` with the given parent `Declaration`.
     #[inline]
-    pub fn new(parent: &mut Declaration) -> ImageBuilder {
+    pub fn new(parent: &'a mut Declaration<ImageElementData, CustomElementData>) -> Self {
         ImageBuilder { parent }
     }
 
@@ -94,27 +93,22 @@ impl ImageBuilder<'_> {
     /// Sets the image data.
     /// The data must be created using [`Clay::data`].
     #[inline]
-    pub fn data(&mut self, data: DataRef) -> &mut Self {
-        self.parent.inner.image.imageData = data.ptr as *mut c_void;
+    pub fn data(&mut self, data: &'a mut ImageElementData) -> &mut Self {
+        self.parent.inner.image.imageData = (data as *mut ImageElementData).cast();
         self
     }
-
-    /// Sets the image data using a raw pointer.
-    ///
-    /// # Safety
-    /// This function is unsafe because it accepts a raw pointer.
-    #[inline]
-    pub unsafe fn data_ptr(&mut self, data: *const c_void) -> &mut Self {
-        self.parent.inner.image.imageData = data as _;
-        self
-    }
-
     /// Returns the modified `Declaration`.
     #[inline]
-    pub fn end(&mut self) -> &mut Declaration {
+    pub fn end(&mut self) -> &mut Declaration<ImageElementData, CustomElementData> {
         self.parent
     }
 }
+
+/// Builder for configuring image properties in a `Declaration`.
+pub struct CustomElementBuilder<'a, ImageElementData, CustomElementData> {
+    parent: &'a mut Declaration<ImageElementData, CustomElementData>,
+}
+
 
 /// Represents different attachment points for floating elements.
 #[derive(Debug, Clone, Copy)]
@@ -165,14 +159,14 @@ pub enum FloatingAttachToElement {
 }
 
 /// Builder for configuring floating element properties in a `Declaration`.
-pub struct FloatingBuilder<'a> {
-    parent: &'a mut Declaration,
+pub struct FloatingBuilder<'a, ImageElementData, CustomElementData> {
+    parent: &'a mut Declaration<ImageElementData, CustomElementData>,
 }
 
-impl FloatingBuilder<'_> {
+impl<'a, ImageElementData, CustomElementData> FloatingBuilder<'a, ImageElementData, CustomElementData> {
     /// Creates a new `FloatingBuilder` with the given parent `Declaration`.
     #[inline]
-    pub fn new(parent: &mut Declaration) -> FloatingBuilder {
+    pub fn new(parent: &'a mut Declaration<ImageElementData, CustomElementData>) -> Self {
         FloatingBuilder { parent }
     }
 
@@ -237,20 +231,20 @@ impl FloatingBuilder<'_> {
 
     /// Returns the modified `Declaration`.
     #[inline]
-    pub fn end(&mut self) -> &mut Declaration {
+    pub fn end(&mut self) -> &mut Declaration<ImageElementData, CustomElementData> {
         self.parent
     }
 }
 
 /// Builder for configuring corner radius properties in a `Declaration`.
-pub struct CornerRadiusBuilder<'a> {
-    parent: &'a mut Declaration,
+pub struct CornerRadiusBuilder<'a, ImageElementData, CustomElementData> {
+    parent: &'a mut Declaration<ImageElementData, CustomElementData>,
 }
 
-impl CornerRadiusBuilder<'_> {
+impl<'a, ImageElementData, CustomElementData> CornerRadiusBuilder<'a, ImageElementData, CustomElementData> {
     /// Creates a new `CornerRadiusBuilder` with the given parent `Declaration`.
     #[inline]
-    pub fn new(parent: &mut Declaration) -> CornerRadiusBuilder {
+    pub fn new(parent: &'a mut Declaration<ImageElementData, CustomElementData>) -> Self {
         CornerRadiusBuilder { parent }
     }
 
@@ -294,7 +288,7 @@ impl CornerRadiusBuilder<'_> {
 
     /// Returns the modified `Declaration`.
     #[inline]
-    pub fn end(&mut self) -> &mut Declaration {
+    pub fn end(&mut self) -> &mut Declaration<ImageElementData, CustomElementData> {
         self.parent
     }
 }

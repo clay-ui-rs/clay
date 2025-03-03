@@ -15,6 +15,8 @@ pub mod raylib;
 
 mod mem;
 
+use core::marker::PhantomData;
+
 use crate::bindings::*;
 use errors::Error;
 use id::Id;
@@ -29,11 +31,12 @@ use text::TextConfig;
 use text::TextElementConfig;
 
 #[derive(Copy, Clone)]
-pub struct Declaration {
+pub struct Declaration<ImageElementData, CustomElementData> {
     inner: Clay_ElementDeclaration,
+    _phantom: PhantomData<(CustomElementData, ImageElementData)>
 }
 
-impl Declaration {
+impl<ImageElementData, CustomElementData> Declaration<ImageElementData, CustomElementData> {
     #[inline]
     pub fn new() -> Self {
         crate::mem::zeroed_init()
@@ -59,32 +62,32 @@ impl Declaration {
     }
 
     #[inline]
-    pub fn layout(&mut self) -> layout::LayoutBuilder {
+    pub fn layout(&mut self) -> layout::LayoutBuilder<ImageElementData, CustomElementData> {
         layout::LayoutBuilder::new(self)
     }
 
     #[inline]
-    pub fn image(&mut self) -> elements::ImageBuilder {
+    pub fn image(&mut self) -> elements::ImageBuilder<ImageElementData, CustomElementData> {
         elements::ImageBuilder::new(self)
     }
 
     #[inline]
-    pub fn floating(&mut self) -> elements::FloatingBuilder {
+    pub fn floating(&mut self) -> elements::FloatingBuilder<ImageElementData, CustomElementData> {
         elements::FloatingBuilder::new(self)
     }
 
     #[inline]
-    pub fn border(&mut self) -> elements::BorderBuilder {
+    pub fn border(&mut self) -> elements::BorderBuilder<ImageElementData, CustomElementData> {
         elements::BorderBuilder::new(self)
     }
 
     #[inline]
-    pub fn corner_radius(&mut self) -> elements::CornerRadiusBuilder {
+    pub fn corner_radius(&mut self) -> elements::CornerRadiusBuilder<ImageElementData, CustomElementData> {
         elements::CornerRadiusBuilder::new(self)
     }
 }
 
-impl Default for Declaration {
+impl<ImageElementData, CustomElementData> Default for Declaration<ImageElementData, CustomElementData> {
     fn default() -> Self {
         Self::new()
     }
@@ -141,7 +144,7 @@ pub struct DataRef<'a> {
 }
 
 #[allow(dead_code)]
-pub struct Clay<'a> {
+pub struct Clay<'a, ImageElementData, CustomElementData> {
     /// Memory used internally by clay
     #[cfg(feature = "std")]
     _memory: Vec<u8>,
@@ -151,12 +154,47 @@ pub struct Clay<'a> {
     #[cfg(not(feature = "std"))]
     _memory: *const core::ffi::c_void,
     /// Phantom data to keep the lifetime of the memory
-    _phantom: core::marker::PhantomData<&'a ()>,
+    _phantom: core::marker::PhantomData<(&'a (), ImageElementData, CustomElementData)>,
     /// Stores the raw pointer to the callback data for later cleanup
     text_measure_callback: Option<*const core::ffi::c_void>,
 }
 
-impl<'a> Clay<'a> {
+impl<'a, ImageElementData: 'a, CustomElementData: 'a> Clay<'a, ImageElementData, CustomElementData> {
+
+    #[inline]
+    pub fn begin(&self) {
+        unsafe { Clay_BeginLayout() };
+    }
+
+    #[inline]
+    pub fn end(&self) -> impl Iterator<Item = RenderCommand<'a, ImageElementData, CustomElementData>> {
+        let array = unsafe { Clay_EndLayout() };
+        let slice = unsafe { core::slice::from_raw_parts(array.internalArray, array.length as _) };
+        slice.iter().map(|command| RenderCommand::from(*command))
+    }
+
+    /// Create an element, passing it's config and a function to add childrens
+    /// ```
+    /// // TODO: Add Example
+    /// ```
+    pub fn with<F: FnOnce(&Self)>(&self, declaration: &Declaration<ImageElementData, CustomElementData>, f: F) {
+        unsafe {
+            Clay_SetCurrentContext(self.context);
+            Clay__OpenElement();
+            Clay__ConfigureOpenElement(declaration.inner);
+        };
+
+        f(self);
+
+        unsafe {
+            Clay__CloseElement();
+        }
+    }
+
+    /// Adds a text element to the current open element or to the root layout
+    pub fn text(&self, text: &str, config: TextElementConfig) {
+        unsafe { Clay__OpenTextElement(text.into(), config.into()) };
+    }
     #[cfg(feature = "std")]
     pub fn new(dimensions: Dimensions) -> Self {
         let memory_size = Self::required_memory_size();
@@ -382,45 +420,10 @@ impl<'a> Clay<'a> {
             None
         }
     }
-
-    #[inline]
-    pub fn begin(&self) {
-        unsafe { Clay_BeginLayout() };
-    }
-
-    #[inline]
-    pub fn end(&self) -> impl Iterator<Item = RenderCommand> {
-        let array = unsafe { Clay_EndLayout() };
-        let slice = unsafe { core::slice::from_raw_parts(array.internalArray, array.length as _) };
-        slice.iter().map(|command| RenderCommand::from(*command))
-    }
-
-    /// Create an element, passing it's config and a function to add childrens
-    /// ```
-    /// // TODO: Add Example
-    /// ```
-    pub fn with<F: FnOnce(&Clay)>(&self, declaration: &Declaration, f: F) {
-        unsafe {
-            Clay_SetCurrentContext(self.context);
-            Clay__OpenElement();
-            Clay__ConfigureOpenElement(declaration.inner);
-        };
-
-        f(self);
-
-        unsafe {
-            Clay__CloseElement();
-        }
-    }
-
-    /// Adds a text element to the current open element or to the root layout
-    pub fn text(&self, text: &str, config: TextElementConfig) {
-        unsafe { Clay__OpenTextElement(text.into(), config.into()) };
-    }
 }
 
 #[cfg(feature = "std")]
-impl Drop for Clay<'_> {
+impl<ImageElementData, CustomElementData> Drop for Clay<'_, ImageElementData, CustomElementData> {
     fn drop(&mut self) {
         unsafe {
             if let Some(ptr) = self.text_measure_callback {
