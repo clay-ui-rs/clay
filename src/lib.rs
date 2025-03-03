@@ -29,7 +29,6 @@ pub use color::Color;
 use text::TextConfig;
 
 use text::TextElementConfig;
-
 #[derive(Copy, Clone)]
 pub struct Declaration<ImageElementData, CustomElementData> {
     inner: Clay_ElementDeclaration,
@@ -58,6 +57,12 @@ impl<ImageElementData, CustomElementData> Declaration<ImageElementData, CustomEl
     #[inline]
     pub fn id(&mut self, id: Id) -> &mut Self {
         self.inner.id = id.id;
+        self
+    }
+
+    #[inline]
+    pub fn custom_element(&mut self, data: &mut CustomElementData) -> &mut Self {
+        self.inner.custom.customData = (data as *mut CustomElementData).cast();
         self
     }
 
@@ -138,11 +143,6 @@ unsafe extern "C" fn error_handler(error_data: Clay_ErrorData) {
     panic!("Clay Error: (type: {:?}) {}", error.type_, error.text);
 }
 
-pub struct DataRef<'a> {
-    pub(crate) ptr: *const core::ffi::c_void,
-    _phantom: core::marker::PhantomData<&'a ()>,
-}
-
 #[allow(dead_code)]
 pub struct Clay<'a, ImageElementData, CustomElementData> {
     /// Memory used internally by clay
@@ -220,15 +220,6 @@ impl<'a, ImageElementData: 'a, CustomElementData: 'a> Clay<'a, ImageElementData,
             context,
             _phantom: core::marker::PhantomData,
             text_measure_callback: None,
-        }
-    }
-
-    /// Get a reference to the data to pass to clay or the builders. This is to ensure that the
-    /// data is not dropped before clay is done with it.
-    pub fn data<T>(&self, data: &T) -> DataRef<'a> {
-        DataRef {
-            ptr: data as *const T as *const core::ffi::c_void,
-            _phantom: core::marker::PhantomData,
         }
     }
 
