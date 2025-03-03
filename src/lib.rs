@@ -30,12 +30,12 @@ use text::TextConfig;
 
 use text::TextElementConfig;
 #[derive(Copy, Clone)]
-pub struct Declaration<ImageElementData, CustomElementData> {
+pub struct Declaration<'render, ImageElementData: 'render, CustomElementData: 'render> {
     inner: Clay_ElementDeclaration,
-    _phantom: PhantomData<(CustomElementData, ImageElementData)>
+    _phantom: PhantomData<(&'render CustomElementData, &'render ImageElementData)>,
 }
 
-impl<ImageElementData, CustomElementData> Declaration<ImageElementData, CustomElementData> {
+impl<'render, ImageElementData: 'render, CustomElementData: 'render> Declaration<'render, ImageElementData, CustomElementData> {
     #[inline]
     pub fn new() -> Self {
         crate::mem::zeroed_init()
@@ -67,32 +67,36 @@ impl<ImageElementData, CustomElementData> Declaration<ImageElementData, CustomEl
     }
 
     #[inline]
-    pub fn layout(&mut self) -> layout::LayoutBuilder<ImageElementData, CustomElementData> {
+    pub fn layout(&mut self) -> layout::LayoutBuilder<'_, 'render, ImageElementData, CustomElementData> {
         layout::LayoutBuilder::new(self)
     }
 
     #[inline]
-    pub fn image(&mut self) -> elements::ImageBuilder<ImageElementData, CustomElementData> {
+    pub fn image(&mut self) -> elements::ImageBuilder<'_, 'render, ImageElementData, CustomElementData> {
         elements::ImageBuilder::new(self)
     }
 
     #[inline]
-    pub fn floating(&mut self) -> elements::FloatingBuilder<ImageElementData, CustomElementData> {
+    pub fn floating(&mut self) -> elements::FloatingBuilder<'_, 'render, ImageElementData, CustomElementData> {
         elements::FloatingBuilder::new(self)
     }
 
     #[inline]
-    pub fn border(&mut self) -> elements::BorderBuilder<ImageElementData, CustomElementData> {
+    pub fn border(&mut self) -> elements::BorderBuilder<'_, 'render, ImageElementData, CustomElementData> {
         elements::BorderBuilder::new(self)
     }
 
     #[inline]
-    pub fn corner_radius(&mut self) -> elements::CornerRadiusBuilder<ImageElementData, CustomElementData> {
+    pub fn corner_radius(
+        &mut self,
+    ) -> elements::CornerRadiusBuilder<'_, 'render, ImageElementData, CustomElementData> {
         elements::CornerRadiusBuilder::new(self)
     }
 }
 
-impl<ImageElementData, CustomElementData> Default for Declaration<ImageElementData, CustomElementData> {
+impl<'render, ImageElementData, CustomElementData> Default
+    for Declaration<'render, ImageElementData, CustomElementData>
+{
     fn default() -> Self {
         Self::new()
     }
@@ -144,7 +148,7 @@ unsafe extern "C" fn error_handler(error_data: Clay_ErrorData) {
 }
 
 #[allow(dead_code)]
-pub struct Clay<'a, ImageElementData, CustomElementData> {
+pub struct Clay {
     /// Memory used internally by clay
     #[cfg(feature = "std")]
     _memory: Vec<u8>,
@@ -153,36 +157,33 @@ pub struct Clay<'a, ImageElementData, CustomElementData> {
     /// no_std case.
     #[cfg(not(feature = "std"))]
     _memory: *const core::ffi::c_void,
-    /// Phantom data to keep the lifetime of the memory
-    _phantom: core::marker::PhantomData<(&'a (), ImageElementData, CustomElementData)>,
     /// Stores the raw pointer to the callback data for later cleanup
     text_measure_callback: Option<*const core::ffi::c_void>,
 }
 
-impl<'a, ImageElementData: 'a, CustomElementData: 'a> Clay<'a, ImageElementData, CustomElementData> {
+pub struct BegunClay<'clay, 'render, ImageElementData, CustomElementData> {
+    clay: &'clay mut Clay,
+    _phantom: core::marker::PhantomData<(&'render ImageElementData, &'render CustomElementData)>,
+    dropped: bool,
+}
 
-    #[inline]
-    pub fn begin(&self) {
-        unsafe { Clay_BeginLayout() };
-    }
-
-    #[inline]
-    pub fn end(&self) -> impl Iterator<Item = RenderCommand<'a, ImageElementData, CustomElementData>> {
-        let array = unsafe { Clay_EndLayout() };
-        let slice = unsafe { core::slice::from_raw_parts(array.internalArray, array.length as _) };
-        slice.iter().map(|command| RenderCommand::from(*command))
-    }
-
+impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'render>
+    BegunClay<'clay,'render, ImageElementData, CustomElementData>
+{
     /// Create an element, passing it's config and a function to add childrens
     /// ```
     /// // TODO: Add Example
     /// ```
-    pub fn with<F: FnOnce(&Self)>(&self, declaration: &Declaration<ImageElementData, CustomElementData>, f: F) {
+    pub fn with<F: FnOnce(&mut BegunClay<'clay, 'render, ImageElementData, CustomElementData>)>(
+        &mut self,
+        declaration: &Declaration<'render, ImageElementData, CustomElementData>,
+        f: F,
+    ) {
         unsafe {
-            Clay_SetCurrentContext(self.context);
+            Clay_SetCurrentContext(self.clay.context);
             Clay__OpenElement();
             Clay__ConfigureOpenElement(declaration.inner);
-        };
+        }
 
         f(self);
 
@@ -191,10 +192,72 @@ impl<'a, ImageElementData: 'a, CustomElementData: 'a> Clay<'a, ImageElementData,
         }
     }
 
+    pub fn end(
+        mut self,
+    ) -> impl Iterator<Item = RenderCommand<'render, ImageElementData, CustomElementData>> {
+        let array = unsafe { Clay_EndLayout() };
+        self.dropped = true;
+        let slice = unsafe { core::slice::from_raw_parts(array.internalArray, array.length as _) };
+        slice.iter().map(|command| RenderCommand::from(*command))
+    }
+
+    /// Generates a unique ID based on the given `label`.
+    ///
+    /// This ID is global and must be unique across the entire scope.
+    #[inline]
+    pub fn id(&self, label: &'clay str) -> id::Id {
+        id::Id::new(label)
+    }
+
+    /// Generates a unique indexed ID based on the given `label` and `index`.
+    ///
+    /// This is useful when multiple elements share the same label but need distinct IDs.
+    #[inline]
+    pub fn id_index(&self, label: &'clay str, index: u32) -> id::Id {
+        id::Id::new_index(label, index)
+    }
+
+    /// Generates a locally unique ID based on the given `label`.
+    ///
+    /// The ID is unique within a specific local scope but not globally.
+    #[inline]
+    pub fn id_local(&self, label: &'clay str) -> id::Id {
+        id::Id::new_index_local(label, 0)
+    }
+
+    /// Generates a locally unique indexed ID based on the given `label` and `index`.
+    ///
+    /// This is useful for differentiating elements within a local scope while keeping their labels consistent.
+    #[inline]
+    pub fn id_index_local(&self, label: &'clay str, index: u32) -> id::Id {
+        id::Id::new_index_local(label, index)
+    }
+
     /// Adds a text element to the current open element or to the root layout
     pub fn text(&self, text: &str, config: TextElementConfig) {
         unsafe { Clay__OpenTextElement(text.into(), config.into()) };
     }
+}
+impl<'clay, 'render, ImageElementData, CustomElementData> Drop for BegunClay<'clay, 'render, ImageElementData, CustomElementData> {
+    fn drop(&mut self) {
+        if !self.dropped {
+            unsafe { Clay_EndLayout(); }
+        }   
+    }
+}
+impl Clay {
+    pub fn begin<'render, ImageElementData: 'render, CustomElementData: 'render>(
+        &mut self,
+    ) -> BegunClay<'_, 'render, ImageElementData, CustomElementData>
+    {
+        unsafe { Clay_BeginLayout() };
+        BegunClay {
+            clay: self,
+            _phantom: core::marker::PhantomData,
+            dropped: false
+        }
+    }
+
     #[cfg(feature = "std")]
     pub fn new(dimensions: Dimensions) -> Self {
         let memory_size = Self::required_memory_size();
@@ -218,7 +281,6 @@ impl<'a, ImageElementData: 'a, CustomElementData: 'a> Clay<'a, ImageElementData,
         Self {
             _memory: memory,
             context,
-            _phantom: core::marker::PhantomData,
             text_measure_callback: None,
         }
     }
@@ -252,10 +314,10 @@ impl<'a, ImageElementData: 'a, CustomElementData: 'a> Clay<'a, ImageElementData,
 
     /// Set the callback for text measurement with user data
     #[cfg(feature = "std")]
-    pub fn set_measure_text_function_user_data<F, T>(&mut self, userdata: T, callback: F)
+    pub fn set_measure_text_function_user_data<'clay, F, T>(&'clay mut self, userdata: T, callback: F)
     where
-        F: Fn(&str, &TextConfig, &'a mut T) -> Dimensions + 'static,
-        T: 'a,
+        F: Fn(&str, &TextConfig, &'clay mut T) -> Dimensions + 'static,
+        T: 'clay ,
     {
         // Box the callback and userdata together
         let boxed = Box::new((callback, userdata));
@@ -308,38 +370,6 @@ impl<'a, ImageElementData: 'a, CustomElementData: 'a> Clay<'a, ImageElementData,
         user_data: *mut core::ffi::c_void,
     ) {
         Clay_SetMeasureTextFunction(Some(callback), user_data);
-    }
-
-    /// Generates a unique ID based on the given `label`.
-    ///
-    /// This ID is global and must be unique across the entire scope.
-    #[inline]
-    pub fn id(&self, label: &'a str) -> id::Id {
-        id::Id::new(label)
-    }
-
-    /// Generates a unique indexed ID based on the given `label` and `index`.
-    ///
-    /// This is useful when multiple elements share the same label but need distinct IDs.
-    #[inline]
-    pub fn id_index(&self, label: &'a str, index: u32) -> id::Id {
-        id::Id::new_index(label, index)
-    }
-
-    /// Generates a locally unique ID based on the given `label`.
-    ///
-    /// The ID is unique within a specific local scope but not globally.
-    #[inline]
-    pub fn id_local(&self, label: &'a str) -> id::Id {
-        id::Id::new_index_local(label, 0)
-    }
-
-    /// Generates a locally unique indexed ID based on the given `label` and `index`.
-    ///
-    /// This is useful for differentiating elements within a local scope while keeping their labels consistent.
-    #[inline]
-    pub fn id_index_local(&self, label: &'a str, index: u32) -> id::Id {
-        id::Id::new_index_local(label, index)
     }
 
     /// Sets the maximum number of element that clay supports
@@ -414,7 +444,7 @@ impl<'a, ImageElementData: 'a, CustomElementData: 'a> Clay<'a, ImageElementData,
 }
 
 #[cfg(feature = "std")]
-impl<ImageElementData, CustomElementData> Drop for Clay<'_, ImageElementData, CustomElementData> {
+impl Drop for Clay {
     fn drop(&mut self) {
         unsafe {
             if let Some(ptr) = self.text_measure_callback {

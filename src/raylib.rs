@@ -27,17 +27,12 @@ macro_rules! clay_to_raylib_rect {
     };
 }
 
-#[derive(Error, Debug)]
-pub enum RaylibRendererError {
-    #[error("Failed to get image data")]
-    ImageDataError,
-}
-
 #[doc = "This is a direct* port of Clay's raylib renderer. See [the C implementation](https://github.com/nicbarker/clay/blob/main/renderers/raylib/clay_renderer_raylib.c) for more info."]
-pub fn clay_raylib_render<'a>(
+pub fn clay_raylib_render<'a, CustomElementData>(
     d: &mut RaylibDrawHandle<'_>,
-    render_commands: impl Iterator<Item = RenderCommand<'a>>,
-) -> Result<(), RaylibRendererError> {
+    render_commands: impl Iterator<Item = RenderCommand<'a, Texture2D, CustomElementData>>,
+    mut handle_custom_element: impl FnMut(&CustomElementData) -> ()
+) {
     for command in render_commands {
         match command.config {
             RenderCommandConfig::Text(text) => {
@@ -52,13 +47,7 @@ pub fn clay_raylib_render<'a>(
             }
 
             RenderCommandConfig::Image(image) => {
-                // safety: as safe as the reference implementation.
-                let texture = unsafe {
-                    let image_data = image.data as *const Texture2D;
-                    image_data
-                        .as_ref()
-                        .ok_or_else(|| RaylibRendererError::ImageDataError)?
-                };
+                let texture = image.data;
 
                 d.draw_texture_ex(
                     texture,
@@ -235,10 +224,8 @@ pub fn clay_raylib_render<'a>(
                     );
                 }
             }
-
-            _ => {}
+            RenderCommandConfig::Custom(custom) => handle_custom_element(custom),
+            RenderCommandConfig::None() => {}
         }
     }
-
-    Ok(())
 }
