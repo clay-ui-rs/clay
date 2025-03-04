@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 use crate::math::BoundingBox;
 use crate::render_commands::{RenderCommand, RenderCommandConfig};
 use crate::Color as ClayColor;

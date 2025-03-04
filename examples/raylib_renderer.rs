@@ -1,4 +1,4 @@
-use clay_layout::{grow, raylib::clay_raylib_render, Clay, Declaration};
+use clay_layout::{grow, renderers::clay_raylib_render, Clay, Declaration};
 use raylib::prelude::*;
 
 pub fn main() {
