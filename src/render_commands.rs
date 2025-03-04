@@ -118,8 +118,8 @@ impl From<Clay_TextRenderData> for Text<'_> {
     }
 }
 
-impl<'a, ImageElementData> From<Clay_ImageRenderData> for Image<'a, ImageElementData> {
-    fn from(value: Clay_ImageRenderData) -> Self {
+impl<ImageElementData> Image<'_, ImageElementData> {
+    pub(crate) unsafe fn from_clay_image_render_data(value: Clay_ImageRenderData) -> Self {
         Self {
             dimensions: value.sourceDimensions.into(),
             data: unsafe { &*value.imageData.cast() },
@@ -155,8 +155,8 @@ impl From<Clay_BorderRenderData> for Border {
     }
 }
 
-impl<'a, CustomElementData> From<Clay_CustomRenderData> for Custom<'a, CustomElementData> {
-    fn from(value: Clay_CustomRenderData) -> Self {
+impl<CustomElementData> Custom<'_, CustomElementData> {
+    pub(crate) unsafe fn from_clay_custom_element_data(value: Clay_CustomRenderData) -> Self {
         Self {
             background_color: value.backgroundColor.into(),
             corner_radii: value.cornerRadius.into(),
@@ -177,11 +177,10 @@ pub enum RenderCommandConfig<'a, ImageElementData, CustomElementData> {
     Custom(Custom<'a, CustomElementData>),
 }
 
-impl<'a, ImageElementData, CustomElementData> From<&Clay_RenderCommand>
-    for RenderCommandConfig<'a, ImageElementData, CustomElementData>
+impl<ImageElementData, CustomElementData> RenderCommandConfig<'_, ImageElementData, CustomElementData>
 {
     #[allow(non_upper_case_globals)]
-    fn from(value: &Clay_RenderCommand) -> Self {
+    pub(crate) unsafe fn from_clay_render_command(value: &Clay_RenderCommand) -> Self {
         match value.commandType {
             Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_NONE => Self::None(),
             Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_RECTANGLE => {
@@ -194,12 +193,12 @@ impl<'a, ImageElementData, CustomElementData> From<&Clay_RenderCommand>
                 Self::Border(Border::from(*unsafe { &value.renderData.border }))
             }
             Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_IMAGE => {
-                Self::Image(Image::from(*unsafe { &value.renderData.image }))
+                Self::Image(unsafe { Image::from_clay_image_render_data(value.renderData.image) })
             }
             Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_SCISSOR_START => Self::ScissorStart(),
             Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_SCISSOR_END => Self::ScissorEnd(),
             Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_CUSTOM => {
-                Self::Custom(Custom::from(*unsafe { &value.renderData.custom }))
+                Self::Custom(unsafe { Custom::from_clay_custom_element_data(value.renderData.custom) })
             }
             _ => unreachable!(),
         }
@@ -220,15 +219,14 @@ pub struct RenderCommand<'a, ImageElementData, CustomElementData> {
     pub z_index: i16,
 }
 
-impl<'a, ImageElementData, CustomElementData> From<Clay_RenderCommand>
-    for RenderCommand<'a, ImageElementData, CustomElementData>
+impl<ImageElementData, CustomElementData> RenderCommand<'_, ImageElementData, CustomElementData>
 {
-    fn from(value: Clay_RenderCommand) -> Self {
+    pub(crate) unsafe fn from_clay_render_command(value: Clay_RenderCommand) -> Self {
         Self {
             id: value.id,
             z_index: value.zIndex,
             bounding_box: value.boundingBox.into(),
-            config: (&value).into(),
+            config: unsafe { RenderCommandConfig::from_clay_render_command(&value) },
         }
     }
 }
