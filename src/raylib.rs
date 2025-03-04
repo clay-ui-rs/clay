@@ -27,10 +27,10 @@ macro_rules! clay_to_raylib_rect {
 }
 
 #[doc = "This is a direct* port of Clay's raylib renderer. See [the C implementation](https://github.com/nicbarker/clay/blob/main/renderers/raylib/clay_renderer_raylib.c) for more info."]
-pub fn clay_raylib_render<'a, CustomElementData: 'a>(
-    d: &mut RaylibDrawHandle<'_>,
+pub fn clay_raylib_render<'rl, 'a, CustomElementData: 'a>(
+    d: &mut RaylibDrawHandle<'rl>,
     render_commands: impl Iterator<Item = RenderCommand<'a, Texture2D, CustomElementData>>,
-    mut handle_custom_element: impl FnMut(&CustomElementData) -> (),
+    mut handle_custom_element: impl FnMut(&CustomElementData, &mut RaylibDrawHandle<'rl>),
 ) {
     for command in render_commands {
         match command.config {
@@ -223,7 +223,7 @@ pub fn clay_raylib_render<'a, CustomElementData: 'a>(
                     );
                 }
             }
-            RenderCommandConfig::Custom(custom) => handle_custom_element(custom.data),
+            RenderCommandConfig::Custom(custom) => handle_custom_element(custom.data, &mut *d),
             RenderCommandConfig::None() => {}
         }
     }

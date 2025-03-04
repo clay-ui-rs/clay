@@ -58,6 +58,6 @@ pub fn main() {
 
         let commands = clay.end();
 
-        clay_raylib_render(&mut d, commands, |_| {})
+        clay_raylib_render(&mut d, commands, |_, _| {})
     }
 }
