@@ -161,20 +161,20 @@ pub struct Clay {
     text_measure_callback: Option<*const core::ffi::c_void>,
 }
 
-pub struct BegunClay<'clay, 'render, ImageElementData, CustomElementData> {
+pub struct ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData> {
     clay: &'clay mut Clay,
     _phantom: core::marker::PhantomData<(&'render ImageElementData, &'render CustomElementData)>,
     dropped: bool,
 }
 
 impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'render>
-    BegunClay<'clay,'render, ImageElementData, CustomElementData>
+    ClayLayoutScope<'clay,'render, ImageElementData, CustomElementData>
 {
     /// Create an element, passing it's config and a function to add childrens
     /// ```
     /// // TODO: Add Example
     /// ```
-    pub fn with<F: FnOnce(&mut BegunClay<'clay, 'render, ImageElementData, CustomElementData>)>(
+    pub fn with<F: FnOnce(&mut ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>)>(
         &mut self,
         declaration: &Declaration<'render, ImageElementData, CustomElementData>,
         f: F,
@@ -238,7 +238,7 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         unsafe { Clay__OpenTextElement(text.into(), config.into()) };
     }
 }
-impl<'clay, 'render, ImageElementData, CustomElementData> Drop for BegunClay<'clay, 'render, ImageElementData, CustomElementData> {
+impl<'clay, 'render, ImageElementData, CustomElementData> Drop for ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData> {
     fn drop(&mut self) {
         if !self.dropped {
             unsafe { Clay_EndLayout(); }
@@ -248,10 +248,10 @@ impl<'clay, 'render, ImageElementData, CustomElementData> Drop for BegunClay<'cl
 impl Clay {
     pub fn begin<'render, ImageElementData: 'render, CustomElementData: 'render>(
         &mut self,
-    ) -> BegunClay<'_, 'render, ImageElementData, CustomElementData>
-    {
+    ) -> ClayLayoutScope<'_, 'render, ImageElementData, CustomElementData>
+    {   
         unsafe { Clay_BeginLayout() };
-        BegunClay {
+        ClayLayoutScope {
             clay: self,
             _phantom: core::marker::PhantomData,
             dropped: false
@@ -302,7 +302,6 @@ impl Clay {
         Self {
             _memory: memory,
             context,
-            _phantom: core::marker::PhantomData,
             text_measure_callback: None,
         }
     }
