@@ -18,7 +18,7 @@ fn clay_to_skia_rect(rect: BoundingBox) -> Rect {
     Rect::from_xywh(rect.x, rect.y, rect.width, rect.height)
 }
 /// This is a direct* port of Clay's raylib renderer using skia_safe as the drawing API.
-pub fn clay_skia_render<'a, CustomElementData: 'a + Debug>(
+pub fn clay_skia_render<'a, CustomElementData: 'a>(
     canvas: &Canvas,
     render_commands: impl Iterator<Item = RenderCommand<'a, Image, CustomElementData>>,
     mut render_custom_element: impl FnMut(&'a CustomElementData, &Canvas),
