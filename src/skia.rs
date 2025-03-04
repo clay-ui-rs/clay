@@ -21,7 +21,7 @@ fn clay_to_skia_rect(rect: BoundingBox) -> Rect {
 pub fn clay_skia_render<'a, CustomElementData: 'a + Debug>(
     canvas: &Canvas,
     render_commands: impl Iterator<Item = RenderCommand<'a, Image, CustomElementData>>,
-    mut render_custom_element: impl FnMut(&'a CustomElementData, &Canvas)
+    mut render_custom_element: impl FnMut(&'a CustomElementData, &Canvas),
 ) {
     for command in render_commands {
         match command.config {
