@@ -61,8 +61,8 @@ impl<'render, ImageElementData: 'render, CustomElementData: 'render> Declaration
     }
 
     #[inline]
-    pub fn custom_element(&mut self, data: &mut CustomElementData) -> &mut Self {
-        self.inner.custom.customData = (data as *mut CustomElementData).cast();
+    pub fn custom_element(&mut self, data: &'render CustomElementData) -> &mut Self {
+        self.inner.custom.customData = (data as *const CustomElementData).cast();
         self
     }
 

@@ -684,7 +684,7 @@ pub struct Clay__Clay_TextElementConfigWrapper {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Clay_ImageElementConfig {
-    pub imageData: *mut ::core::ffi::c_void,
+    pub imageData: *const ::core::ffi::c_void,
     pub sourceDimensions: Clay_Dimensions,
 }
 #[repr(C)]
@@ -745,7 +745,7 @@ pub struct Clay__Clay_FloatingElementConfigWrapper {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Clay_CustomElementConfig {
-    pub customData: *mut ::core::ffi::c_void,
+    pub customData: *const ::core::ffi::c_void,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]

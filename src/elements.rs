@@ -93,8 +93,8 @@ impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'rende
     /// Sets the image data.
     /// The data must be created using [`Clay::data`].
     #[inline]
-    pub fn data(&mut self, data: &'render mut ImageElementData) -> &mut Self {
-        self.parent.inner.image.imageData = (data as *mut ImageElementData).cast();
+    pub fn data(&mut self, data: &'render ImageElementData) -> &mut Self {
+        self.parent.inner.image.imageData = (data as *const ImageElementData).cast();
         self
     }
     /// Returns the modified `Declaration`.
