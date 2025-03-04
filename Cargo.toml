@@ -14,12 +14,13 @@ cc = "1.0"
 
 [features]
 default = ["std"]
-raylib-renderer = ["raylib", "thiserror"]
+raylib-renderer = ["raylib"]
+skia-renderer = ["skia-safe"]
 
 std = []
 wasm = []
 debug = []
 
 [dependencies]
+skia-safe = { version = "0.82.0", features = ["gl"], optional = true }
 raylib = { version = "5.0.2", optional = true }
-thiserror = { version = "2.0.11", optional = true }
