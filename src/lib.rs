@@ -204,6 +204,32 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         }
     }
 
+    pub fn with_styling<
+        G: FnOnce(&mut ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>) -> Declaration<'render, ImageElementData, CustomElementData>,
+        F: FnOnce(&mut ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>),
+    >(
+        &mut self,
+        g: G,
+        f: F,
+    ) {
+        unsafe {
+            Clay_SetCurrentContext(self.clay.context);
+            Clay__OpenElement();
+        }
+
+        let declaration = g(self);
+
+        unsafe {
+            Clay__ConfigureOpenElement(declaration.inner);
+        }
+
+        f(self);
+
+        unsafe {
+            Clay__CloseElement();
+        }
+    }
+
     pub fn end(
         mut self,
     ) -> impl Iterator<Item = RenderCommand<'render, ImageElementData, CustomElementData>> {
@@ -250,6 +276,14 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
     /// Adds a text element to the current open element or to the root layout
     pub fn text(&self, text: &'render str, config: TextElementConfig) {
         unsafe { Clay__OpenTextElement(text.into(), config.into()) };
+    }
+
+    pub fn hovered(&self) -> bool {
+        unsafe { Clay_Hovered() }
+    }
+
+    pub fn pointer_over(&self, cfg: Id) -> bool {
+        unsafe { Clay_PointerOver(cfg.id) }
     }
 }
 impl<ImageElementData, CustomElementData> Drop
