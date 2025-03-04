@@ -210,7 +210,9 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         let array = unsafe { Clay_EndLayout() };
         self.dropped = true;
         let slice = unsafe { core::slice::from_raw_parts(array.internalArray, array.length as _) };
-        slice.iter().map(|command| unsafe { RenderCommand::from_clay_render_command(*command) })
+        slice
+            .iter()
+            .map(|command| unsafe { RenderCommand::from_clay_render_command(*command) })
     }
 
     /// Generates a unique ID based on the given `label`.

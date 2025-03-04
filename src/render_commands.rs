@@ -177,7 +177,8 @@ pub enum RenderCommandConfig<'a, ImageElementData, CustomElementData> {
     Custom(Custom<'a, CustomElementData>),
 }
 
-impl<ImageElementData, CustomElementData> RenderCommandConfig<'_, ImageElementData, CustomElementData>
+impl<ImageElementData, CustomElementData>
+    RenderCommandConfig<'_, ImageElementData, CustomElementData>
 {
     #[allow(non_upper_case_globals)]
     pub(crate) unsafe fn from_clay_render_command(value: &Clay_RenderCommand) -> Self {
@@ -197,9 +198,9 @@ impl<ImageElementData, CustomElementData> RenderCommandConfig<'_, ImageElementDa
             }
             Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_SCISSOR_START => Self::ScissorStart(),
             Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_SCISSOR_END => Self::ScissorEnd(),
-            Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_CUSTOM => {
-                Self::Custom(unsafe { Custom::from_clay_custom_element_data(value.renderData.custom) })
-            }
+            Clay_RenderCommandType_CLAY_RENDER_COMMAND_TYPE_CUSTOM => Self::Custom(unsafe {
+                Custom::from_clay_custom_element_data(value.renderData.custom)
+            }),
             _ => unreachable!(),
         }
     }
@@ -219,8 +220,7 @@ pub struct RenderCommand<'a, ImageElementData, CustomElementData> {
     pub z_index: i16,
 }
 
-impl<ImageElementData, CustomElementData> RenderCommand<'_, ImageElementData, CustomElementData>
-{
+impl<ImageElementData, CustomElementData> RenderCommand<'_, ImageElementData, CustomElementData> {
     pub(crate) unsafe fn from_clay_render_command(value: Clay_RenderCommand) -> Self {
         Self {
             id: value.id,
