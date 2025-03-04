@@ -35,7 +35,9 @@ pub struct Declaration<'render, ImageElementData: 'render, CustomElementData: 'r
     _phantom: PhantomData<(&'render CustomElementData, &'render ImageElementData)>,
 }
 
-impl<'render, ImageElementData: 'render, CustomElementData: 'render> Declaration<'render, ImageElementData, CustomElementData> {
+impl<'render, ImageElementData: 'render, CustomElementData: 'render>
+    Declaration<'render, ImageElementData, CustomElementData>
+{
     #[inline]
     pub fn new() -> Self {
         crate::mem::zeroed_init()
@@ -67,22 +69,30 @@ impl<'render, ImageElementData: 'render, CustomElementData: 'render> Declaration
     }
 
     #[inline]
-    pub fn layout(&mut self) -> layout::LayoutBuilder<'_, 'render, ImageElementData, CustomElementData> {
+    pub fn layout(
+        &mut self,
+    ) -> layout::LayoutBuilder<'_, 'render, ImageElementData, CustomElementData> {
         layout::LayoutBuilder::new(self)
     }
 
     #[inline]
-    pub fn image(&mut self) -> elements::ImageBuilder<'_, 'render, ImageElementData, CustomElementData> {
+    pub fn image(
+        &mut self,
+    ) -> elements::ImageBuilder<'_, 'render, ImageElementData, CustomElementData> {
         elements::ImageBuilder::new(self)
     }
 
     #[inline]
-    pub fn floating(&mut self) -> elements::FloatingBuilder<'_, 'render, ImageElementData, CustomElementData> {
+    pub fn floating(
+        &mut self,
+    ) -> elements::FloatingBuilder<'_, 'render, ImageElementData, CustomElementData> {
         elements::FloatingBuilder::new(self)
     }
 
     #[inline]
-    pub fn border(&mut self) -> elements::BorderBuilder<'_, 'render, ImageElementData, CustomElementData> {
+    pub fn border(
+        &mut self,
+    ) -> elements::BorderBuilder<'_, 'render, ImageElementData, CustomElementData> {
         elements::BorderBuilder::new(self)
     }
 
@@ -168,13 +178,15 @@ pub struct ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData> 
 }
 
 impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'render>
-    ClayLayoutScope<'clay,'render, ImageElementData, CustomElementData>
+    ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>
 {
     /// Create an element, passing it's config and a function to add childrens
     /// ```
     /// // TODO: Add Example
     /// ```
-    pub fn with<F: FnOnce(&mut ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>)>(
+    pub fn with<
+        F: FnOnce(&mut ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>),
+    >(
         &mut self,
         declaration: &Declaration<'render, ImageElementData, CustomElementData>,
         f: F,
@@ -238,23 +250,26 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         unsafe { Clay__OpenTextElement(text.into(), config.into()) };
     }
 }
-impl<'clay, 'render, ImageElementData, CustomElementData> Drop for ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData> {
+impl<'clay, 'render, ImageElementData, CustomElementData> Drop
+    for ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>
+{
     fn drop(&mut self) {
         if !self.dropped {
-            unsafe { Clay_EndLayout(); }
-        }   
+            unsafe {
+                Clay_EndLayout();
+            }
+        }
     }
 }
 impl Clay {
     pub fn begin<'render, ImageElementData: 'render, CustomElementData: 'render>(
         &mut self,
-    ) -> ClayLayoutScope<'_, 'render, ImageElementData, CustomElementData>
-    {   
+    ) -> ClayLayoutScope<'_, 'render, ImageElementData, CustomElementData> {
         unsafe { Clay_BeginLayout() };
         ClayLayoutScope {
             clay: self,
             _phantom: core::marker::PhantomData,
-            dropped: false
+            dropped: false,
         }
     }
 
@@ -313,10 +328,13 @@ impl Clay {
 
     /// Set the callback for text measurement with user data
     #[cfg(feature = "std")]
-    pub fn set_measure_text_function_user_data<'clay, F, T>(&'clay mut self, userdata: T, callback: F)
-    where
+    pub fn set_measure_text_function_user_data<'clay, F, T>(
+        &'clay mut self,
+        userdata: T,
+        callback: F,
+    ) where
         F: Fn(&str, &TextConfig, &'clay mut T) -> Dimensions + 'static,
-        T: 'clay ,
+        T: 'clay,
     {
         // Box the callback and userdata together
         let boxed = Box::new((callback, userdata));

@@ -30,7 +30,7 @@ macro_rules! clay_to_raylib_rect {
 pub fn clay_raylib_render<'a, CustomElementData: 'a>(
     d: &mut RaylibDrawHandle<'_>,
     render_commands: impl Iterator<Item = RenderCommand<'a, Texture2D, CustomElementData>>,
-    mut handle_custom_element: impl FnMut(&CustomElementData) -> ()
+    mut handle_custom_element: impl FnMut(&CustomElementData) -> (),
 ) {
     for command in render_commands {
         match command.config {

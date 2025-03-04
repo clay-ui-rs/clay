@@ -151,14 +151,23 @@ pub enum LayoutDirection {
 }
 
 /// Builder for configuring layout properties in a `Declaration`.
-pub struct LayoutBuilder<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> {
+pub struct LayoutBuilder<
+    'declaration,
+    'render,
+    ImageElementData: 'render,
+    CustomElementData: 'render,
+> {
     parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
 }
 
-impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> LayoutBuilder<'declaration, 'render, ImageElementData, CustomElementData> {
+impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render>
+    LayoutBuilder<'declaration, 'render, ImageElementData, CustomElementData>
+{
     /// Creates a new `LayoutBuilder` with the given parent `Declaration`.
     #[inline]
-    pub fn new(parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>) -> Self {
+    pub fn new(
+        parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
+    ) -> Self {
         LayoutBuilder { parent }
     }
 

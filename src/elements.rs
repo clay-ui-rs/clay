@@ -1,14 +1,23 @@
 use crate::{bindings::*, color::Color, Declaration, Dimensions, Vector2};
 
 /// Builder for configuring border properties of a `Declaration`.
-pub struct BorderBuilder<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> {
+pub struct BorderBuilder<
+    'declaration,
+    'render,
+    ImageElementData: 'render,
+    CustomElementData: 'render,
+> {
     parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
 }
 
-impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> BorderBuilder<'declaration, 'render, ImageElementData, CustomElementData> {
+impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render>
+    BorderBuilder<'declaration, 'render, ImageElementData, CustomElementData>
+{
     /// Creates a new `BorderBuilder` with the given parent `Declaration`.
     #[inline]
-    pub fn new(parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>) -> Self {
+    pub fn new(
+        parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
+    ) -> Self {
         BorderBuilder { parent }
     }
 
@@ -72,14 +81,23 @@ impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'rende
 }
 
 /// Builder for configuring image properties in a `Declaration`.
-pub struct ImageBuilder<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> {
+pub struct ImageBuilder<
+    'declaration,
+    'render,
+    ImageElementData: 'render,
+    CustomElementData: 'render,
+> {
     parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
 }
 
-impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> ImageBuilder<'declaration, 'render, ImageElementData, CustomElementData> {
+impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render>
+    ImageBuilder<'declaration, 'render, ImageElementData, CustomElementData>
+{
     /// Creates a new `ImageBuilder` with the given parent `Declaration`.
     #[inline]
-    pub fn new(parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>) -> Self {
+    pub fn new(
+        parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
+    ) -> Self {
         ImageBuilder { parent }
     }
 
@@ -103,7 +121,6 @@ impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'rende
         self.parent
     }
 }
-
 
 /// Represents different attachment points for floating elements.
 #[derive(Debug, Clone, Copy)]
@@ -154,14 +171,23 @@ pub enum FloatingAttachToElement {
 }
 
 /// Builder for configuring floating element properties in a `Declaration`.
-pub struct FloatingBuilder<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> {
+pub struct FloatingBuilder<
+    'declaration,
+    'render,
+    ImageElementData: 'render,
+    CustomElementData: 'render,
+> {
     parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
 }
 
-impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> FloatingBuilder<'declaration, 'render, ImageElementData, CustomElementData> {
+impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render>
+    FloatingBuilder<'declaration, 'render, ImageElementData, CustomElementData>
+{
     /// Creates a new `FloatingBuilder` with the given parent `Declaration`.
     #[inline]
-    pub fn new(parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>) -> Self {
+    pub fn new(
+        parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
+    ) -> Self {
         FloatingBuilder { parent }
     }
 
@@ -232,14 +258,23 @@ impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'rende
 }
 
 /// Builder for configuring corner radius properties in a `Declaration`.
-pub struct CornerRadiusBuilder<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> {
+pub struct CornerRadiusBuilder<
+    'declaration,
+    'render,
+    ImageElementData: 'render,
+    CustomElementData: 'render,
+> {
     parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
 }
 
-impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render> CornerRadiusBuilder<'declaration, 'render, ImageElementData, CustomElementData> {
+impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'render>
+    CornerRadiusBuilder<'declaration, 'render, ImageElementData, CustomElementData>
+{
     /// Creates a new `CornerRadiusBuilder` with the given parent `Declaration`.
     #[inline]
-    pub fn new(parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>) -> Self {
+    pub fn new(
+        parent: &'declaration mut Declaration<'render, ImageElementData, CustomElementData>,
+    ) -> Self {
         CornerRadiusBuilder { parent }
     }
 
