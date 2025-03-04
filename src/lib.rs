@@ -219,7 +219,7 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
     ///
     /// This ID is global and must be unique across the entire scope.
     #[inline]
-    pub fn id(&self, label: &'clay str) -> id::Id {
+    pub fn id(&self, label: &'render str) -> id::Id {
         id::Id::new(label)
     }
 
@@ -227,7 +227,7 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
     ///
     /// This is useful when multiple elements share the same label but need distinct IDs.
     #[inline]
-    pub fn id_index(&self, label: &'clay str, index: u32) -> id::Id {
+    pub fn id_index(&self, label: &'render str, index: u32) -> id::Id {
         id::Id::new_index(label, index)
     }
 
@@ -235,7 +235,7 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
     ///
     /// The ID is unique within a specific local scope but not globally.
     #[inline]
-    pub fn id_local(&self, label: &'clay str) -> id::Id {
+    pub fn id_local(&self, label: &'render str) -> id::Id {
         id::Id::new_index_local(label, 0)
     }
 
@@ -243,12 +243,12 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
     ///
     /// This is useful for differentiating elements within a local scope while keeping their labels consistent.
     #[inline]
-    pub fn id_index_local(&self, label: &'clay str, index: u32) -> id::Id {
+    pub fn id_index_local(&self, label: &'render str, index: u32) -> id::Id {
         id::Id::new_index_local(label, index)
     }
 
     /// Adds a text element to the current open element or to the root layout
-    pub fn text(&self, text: &str, config: TextElementConfig) {
+    pub fn text(&self, text: &'render str, config: TextElementConfig) {
         unsafe { Clay__OpenTextElement(text.into(), config.into()) };
     }
 }
