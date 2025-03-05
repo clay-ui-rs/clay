@@ -1,12 +1,18 @@
 use clay_layout::{
-    elements::FloatingAttachToElement, fixed, grow, layout::{
-    Alignment, 
-    LayoutDirection::TopToBottom, 
-    Padding,
-}, math::Dimensions, percent, render_commands::RenderCommand, text::TextConfig, Clay, ClayLayoutScope, Color, Declaration
+    elements::FloatingAttachToElement,
+    fixed, grow,
+    layout::{Alignment, LayoutDirection::TopToBottom, Padding},
+    math::Dimensions,
+    percent,
+    render_commands::RenderCommand,
+    text::TextConfig,
+    Clay, ClayLayoutScope, Color, Declaration,
 };
 
-const CLAY_ALIGN_Y_CENTER: Alignment = Alignment{ x: clay_layout::layout::LayoutAlignmentX::Left, y: clay_layout::layout::LayoutAlignmentY::Center};
+const CLAY_ALIGN_Y_CENTER: Alignment = Alignment {
+    x: clay_layout::layout::LayoutAlignmentX::Left,
+    y: clay_layout::layout::LayoutAlignmentY::Center,
+};
 
 const WHITE: Color = Color::rgb(255.0, 255.0, 255.0);
 
@@ -15,12 +21,11 @@ trait CustomStyles<ImageElementData, CustomElementData> {
     fn content_background_config(&mut self) -> &mut Self;
 }
 
-impl<ImageElementData, CustomElementData> CustomStyles<ImageElementData, CustomElementData> for Declaration<'_, ImageElementData, CustomElementData>{
+impl<ImageElementData, CustomElementData> CustomStyles<ImageElementData, CustomElementData>
+    for Declaration<'_, ImageElementData, CustomElementData>
+{
     fn layout_expand(&mut self) -> &mut Self {
-        self.layout()
-            .width(grow!())
-            .height(grow!())
-            .end();
+        self.layout().width(grow!()).height(grow!()).end();
 
         self
     }
@@ -28,66 +33,59 @@ impl<ImageElementData, CustomElementData> CustomStyles<ImageElementData, CustomE
     fn content_background_config(&mut self) -> &mut Self {
         self.background_color(Color::rgb(90.0, 90.0, 90.0))
             .corner_radius()
-                .all(8.0)
-                .end();
+            .all(8.0)
+            .end();
 
         self
     }
 }
 
-fn render_header_button<'a, ImageElementData: 'a, CustomElementData: 'a>(clay: &mut ClayLayoutScope<'a, 'a, ImageElementData, CustomElementData>, text: &str) {
-    clay.with(&Declaration::new()
-        .layout()
-            .padding(Padding::new(16,16,8,8))
+fn render_header_button<'a, ImageElementData: 'a, CustomElementData: 'a>(
+    clay: &mut ClayLayoutScope<'a, 'a, ImageElementData, CustomElementData>,
+    text: &str,
+) {
+    clay.with(
+        &Declaration::new()
+            .layout()
+            .padding(Padding::new(16, 16, 8, 8))
             .end()
-        .background_color(Color::rgb(140.0, 140.0, 140.0))
-        .corner_radius()
+            .background_color(Color::rgb(140.0, 140.0, 140.0))
+            .corner_radius()
             .all(5.0)
-            .end()
-        ,|clay|{
-            clay.text(
-                text, 
-                TextConfig::new()
-                    .font_size(16)
-                    .color(WHITE)
-                    .end()
-            );
-        }
+            .end(),
+        |clay| {
+            clay.text(text, TextConfig::new().font_size(16).color(WHITE).end());
+        },
     );
 }
 
-fn render_dropdown_menu_item<'a, ImageElementData: 'a, CustomElementData: 'a>(clay: &mut ClayLayoutScope<'a, 'a, ImageElementData, CustomElementData>, text: &str) {
-    clay.with(&Declaration::new()
-        .layout()
-            .padding(Padding::all(16))
-            .end(),
-        |clay|{
-            clay.text(
-                text, 
-                TextConfig::new()
-                    .font_size(16)
-                    .color(WHITE)
-                    .end()
-            );
-        }
+fn render_dropdown_menu_item<'a, ImageElementData: 'a, CustomElementData: 'a>(
+    clay: &mut ClayLayoutScope<'a, 'a, ImageElementData, CustomElementData>,
+    text: &str,
+) {
+    clay.with(
+        &Declaration::new().layout().padding(Padding::all(16)).end(),
+        |clay| {
+            clay.text(text, TextConfig::new().font_size(16).color(WHITE).end());
+        },
     );
 }
 pub struct Document {
     pub title: String,
-    pub contents: String
+    pub contents: String,
 }
 
 #[derive(Default)]
-pub struct ClayState{
+pub struct ClayState {
     pub documents: Vec<Document>,
     pub selected_document_index: u8,
     pub mouse_down_rising_edge: bool,
-    pub mouse_position: (f32,f32),
-    pub scroll_delta: (f32,f32),
-    pub size:(f32,f32),
+    pub mouse_position: (f32, f32),
+    pub scroll_delta: (f32, f32),
+    pub size: (f32, f32),
 }
 
-pub fn initialize_user_data(user_data: &mut ClayState){
+pub fn initialize_user_data(user_data: &mut ClayState) {
     user_data.documents
         .push(Document{
             title:"Squirrels".to_string(), 
@@ -100,130 +98,142 @@ pub fn initialize_user_data(user_data: &mut ClayState){
         });
 }
 
-pub fn create_layout<'render>(clay: &'render mut Clay, user_data: &mut ClayState, time_delta: f32) -> impl Iterator<Item = RenderCommand<'render, (), ()>>{
+pub fn create_layout<'render>(
+    clay: &'render mut Clay,
+    user_data: &mut ClayState,
+    time_delta: f32,
+) -> impl Iterator<Item = RenderCommand<'render, (), ()>> {
     clay.layout_dimensions(user_data.size.into());
     clay.pointer_state(user_data.mouse_position.into(), false);
     clay.update_scroll_containers(false, user_data.scroll_delta.into(), time_delta);
 
     let mut clay = clay.begin::<(), ()>();
 
-    clay.with(&Declaration::new()
+    clay.with(
+        &Declaration::new()
             .layout()
-                .width(grow!())
-                .height(grow!())
-                .end()
+            .width(grow!())
+            .height(grow!())
+            .end()
             .id(clay.id("outer_container"))
             .layout()
-                .direction(TopToBottom)
-                .padding(Padding::all(16))
-                .child_gap(16)
-                .end()
-            .background_color(Color::rgb(43.0, 41.0, 51.0))
-        , |clay| {
-            clay.with(&Declaration::new()
-                .content_background_config()
-                .id(clay.id("header_bar"))
-                .layout()
+            .direction(TopToBottom)
+            .padding(Padding::all(16))
+            .child_gap(16)
+            .end()
+            .background_color(Color::rgb(43.0, 41.0, 51.0)),
+        |clay| {
+            clay.with(
+                &Declaration::new()
+                    .content_background_config()
+                    .id(clay.id("header_bar"))
+                    .layout()
                     .width(grow!())
                     .height(fixed!(120.0))
-                    .padding(Padding { left: 16, right: 16, top: 8, bottom: 8 })
+                    .padding(Padding {
+                        left: 16,
+                        right: 16,
+                        top: 8,
+                        bottom: 8,
+                    })
                     .child_gap(16)
                     .child_alignment(CLAY_ALIGN_Y_CENTER)
                     .end(),
                 |clay| {
-                    clay.with(&Declaration::new()
-                        .id(clay.id("file_button"))
-                        .layout()
-                            .padding(Padding { left: 16, right: 16, top: 8, bottom: 8 })
+                    clay.with(
+                        &Declaration::new()
+                            .id(clay.id("file_button"))
+                            .layout()
+                            .padding(Padding {
+                                left: 16,
+                                right: 16,
+                                top: 8,
+                                bottom: 8,
+                            })
                             .end()
-                        .background_color(Color::rgb(140.0, 140.0, 140.0))
-                        .corner_radius()
+                            .background_color(Color::rgb(140.0, 140.0, 140.0))
+                            .corner_radius()
                             .all(5.0)
                             .end(),
-                    |clay| {
-                        clay.text(
-                            "File", 
-                            TextConfig::new()
-                                .font_size(16)
-                                .color(WHITE)
-                                .end()
-                        );
+                        |clay| {
+                            clay.text("File", TextConfig::new().font_size(16).color(WHITE).end());
 
-                        let file_menu_visible = 
-                            clay.pointer_over(clay.id("file_button"))
-                            ||
-                            clay.pointer_over(clay.id("file_menu"));
+                            let file_menu_visible = clay.pointer_over(clay.id("file_button"))
+                                || clay.pointer_over(clay.id("file_menu"));
 
-                        if file_menu_visible {
-                            clay.with(&Declaration::new()
-                                .id(clay.id("file_menu"))
-                                .floating()
-                                    .attach_to(FloatingAttachToElement::Parent)
-                                    .end()
-                                .layout()
-                                    .padding(Padding::new(0, 0, 8, 8))
-                                    .end()
-                                , |clay| {
-                                    clay.with(&Declaration::new()
+                            if file_menu_visible {
+                                clay.with(
+                                    &Declaration::new()
+                                        .id(clay.id("file_menu"))
+                                        .floating()
+                                        .attach_to(FloatingAttachToElement::Parent)
+                                        .end()
                                         .layout()
-                                            .direction(TopToBottom)
-                                            .width(fixed!(200.0))
-                                            .end()
-                                        .background_color(Color::rgb(40.0, 40.0, 40.0))
-                                        .corner_radius()
-                                            .all(8.0)
-                                            .end()
-                                        , |clay| {
-                                            render_dropdown_menu_item(clay, "New");
-                                            render_dropdown_menu_item(clay, "Open");
-                                            render_dropdown_menu_item(clay, "Close");
-                                        }
-                                    );
-                                }
-                            );
-                        }
-                    });
+                                        .padding(Padding::new(0, 0, 8, 8))
+                                        .end(),
+                                    |clay| {
+                                        clay.with(
+                                            &Declaration::new()
+                                                .layout()
+                                                .direction(TopToBottom)
+                                                .width(fixed!(200.0))
+                                                .end()
+                                                .background_color(Color::rgb(40.0, 40.0, 40.0))
+                                                .corner_radius()
+                                                .all(8.0)
+                                                .end(),
+                                            |clay| {
+                                                render_dropdown_menu_item(clay, "New");
+                                                render_dropdown_menu_item(clay, "Open");
+                                                render_dropdown_menu_item(clay, "Close");
+                                            },
+                                        );
+                                    },
+                                );
+                            }
+                        },
+                    );
 
                     render_header_button(clay, "Edit");
-                    clay.with(&Declaration::new()
-                        .layout()
-                            .width(grow!())
-                            .end()
-                    , |_| {});
+                    clay.with(&Declaration::new().layout().width(grow!()).end(), |_| {});
                     render_header_button(clay, "Upload");
                     render_header_button(clay, "Media");
                     render_header_button(clay, "Support");
-                }
+                },
             );
 
-            clay.with(&Declaration::new()
-                .layout_expand()
-                .id(clay.id("lower_content"))
-                .layout()
+            clay.with(
+                &Declaration::new()
+                    .layout_expand()
+                    .id(clay.id("lower_content"))
+                    .layout()
                     .child_gap(16)
-                    .end()
-                , |clay|{
-                    clay.with(&Declaration::new()
-                        .content_background_config()
-                        .id(clay.id("sidebar"))
-                        .layout()
+                    .end(),
+                |clay| {
+                    clay.with(
+                        &Declaration::new()
+                            .content_background_config()
+                            .id(clay.id("sidebar"))
+                            .layout()
                             .direction(TopToBottom)
                             .padding(Padding::all(16))
                             .child_gap(8)
                             .width(percent!(0.25))
                             .height(grow!())
-                            .end()
-                        , |clay| {
+                            .end(),
+                        |clay| {
                             for i in 0..user_data.documents.len() {
                                 let document = user_data.documents.get_mut(i).unwrap();
-                                let mut side_bar_button_layout: Declaration<'_, (), ()> = Declaration::new()
-                                    .layout()
+                                let mut side_bar_button_layout: Declaration<'_, (), ()> =
+                                    Declaration::new()
+                                        .layout()
                                         .width(grow!())
                                         .padding(Padding::all(16))
-                                        .end().to_owned();
-                                
-                                if i as u8 == user_data.selected_document_index{
-                                    clay.with_styling( 
+                                        .end()
+                                        .to_owned();
+
+                                if i as u8 == user_data.selected_document_index {
+                                    clay.with_styling(
                                         |clay| {
                                             if clay.hovered() {
                                                 if user_data.mouse_down_rising_edge {
@@ -231,30 +241,32 @@ pub fn create_layout<'render>(clay: &'render mut Clay, user_data: &mut ClayState
                                                 }
 
                                                 *side_bar_button_layout
-                                                    .background_color(Color::rgb(120.0, 120.0, 120.0))
+                                                    .background_color(Color::rgb(
+                                                        120.0, 120.0, 120.0,
+                                                    ))
                                                     .corner_radius()
-                                                        .all(8.0)
-                                                        .end()
+                                                    .all(8.0)
+                                                    .end()
                                                     .border()
-                                                        .all_directions(3)
-                                                        .color(WHITE)
-                                                        .end()
-                                            }
-                                            else {
+                                                    .all_directions(3)
+                                                    .color(WHITE)
+                                                    .end()
+                                            } else {
                                                 *side_bar_button_layout
-                                                    .background_color(Color::rgb(120.0, 120.0, 120.0))
+                                                    .background_color(Color::rgb(
+                                                        120.0, 120.0, 120.0,
+                                                    ))
                                                     .corner_radius()
-                                                        .all(8.0)
-                                                        .end()
+                                                    .all(8.0)
+                                                    .end()
                                             }
-                                        }
-                                        , |clay| {
-                                            clay.text(&document.title, TextConfig::new()
-                                                .font_size(20)
-                                                .color(WHITE)
-                                                .end()
+                                        },
+                                        |clay| {
+                                            clay.text(
+                                                &document.title,
+                                                TextConfig::new().font_size(20).color(WHITE).end(),
                                             );
-                                        }
+                                        },
                                     );
                                 } else {
                                     clay.with_styling(
@@ -266,56 +278,51 @@ pub fn create_layout<'render>(clay: &'render mut Clay, user_data: &mut ClayState
 
                                                 *side_bar_button_layout
                                                     .border()
-                                                        .all_directions(3)
-                                                        .color(WHITE)
-                                                        .end()
-
-                                            }
-                                            else {
+                                                    .all_directions(3)
+                                                    .color(WHITE)
+                                                    .end()
+                                            } else {
                                                 side_bar_button_layout
                                             }
-                                        }, 
+                                        },
                                         |clay| {
-                                            clay.text(&document.title, TextConfig::new()
-                                                .font_size(20)
-                                                .color(WHITE)
-                                                .end()
+                                            clay.text(
+                                                &document.title,
+                                                TextConfig::new().font_size(20).color(WHITE).end(),
                                             );
-                                        }
+                                        },
                                     );
                                 }
                             }
-                        }
+                        },
                     );
 
-                    clay.with(Declaration::new()
-                                .content_background_config()
-                                .layout_expand()
-                                .id(clay.id("main_content"))
-                                .scroll(false, true)
-                                .layout()
-                                    .direction(TopToBottom)
-                                    .child_gap(16)
-                                    .padding(Padding::all(16))
-                                    .end()
-                        ,|clay| {
-                            let selected_documtent = &user_data.documents[user_data.selected_document_index as usize];
-                            clay.text(&selected_documtent.title, 
-                                TextConfig::new()
-                                    .font_size(24)
-                                    .color(WHITE)
-                                    .end()
+                    clay.with(
+                        Declaration::new()
+                            .content_background_config()
+                            .layout_expand()
+                            .id(clay.id("main_content"))
+                            .scroll(false, true)
+                            .layout()
+                            .direction(TopToBottom)
+                            .child_gap(16)
+                            .padding(Padding::all(16))
+                            .end(),
+                        |clay| {
+                            let selected_documtent =
+                                &user_data.documents[user_data.selected_document_index as usize];
+                            clay.text(
+                                &selected_documtent.title,
+                                TextConfig::new().font_size(24).color(WHITE).end(),
                             );
 
-                            clay.text(&selected_documtent.contents, 
-                                TextConfig::new()
-                                    .font_size(24)
-                                    .color(WHITE)
-                                    .end()
+                            clay.text(
+                                &selected_documtent.contents,
+                                TextConfig::new().font_size(24).color(WHITE).end(),
                             );
-                        }
+                        },
                     );
-                }
+                },
             );
         },
     );
@@ -323,8 +330,9 @@ pub fn create_layout<'render>(clay: &'render mut Clay, user_data: &mut ClayState
     clay.end()
 }
 
-use std::{cell::RefCell, rc::Rc};
 use crate::UIState;
+use std::{cell::RefCell, rc::Rc};
 pub fn measure_text(text: &str, config: &TextConfig, ui: &mut Rc<RefCell<UIState>>) -> Dimensions {
-    ui.borrow_mut().measure_text(text, config.font_size as f32, config.line_height as f32)
+    ui.borrow_mut()
+        .measure_text(text, config.font_size as f32, config.line_height as f32)
 }
