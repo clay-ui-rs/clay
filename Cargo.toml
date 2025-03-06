@@ -31,3 +31,8 @@ wgpu = "24.0.1"
 pollster = "0.2"
 bytemuck = { version = "1.16", features = [ "derive" ] }
 glyphon = "0.8.0"
+
+[[example]]
+name = "raylib_renderer"
+path = "examples/raylib_renderer.rs"
+required-features = ["raylib", "std"]

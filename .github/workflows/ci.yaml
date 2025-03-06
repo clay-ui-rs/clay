@@ -71,7 +71,12 @@ jobs:
         run: cargo build --target wasm32-unknown-unknown
 
       - name: Run tests
+        if: matrix.platform != 'windows-latest'
         run: cargo test --features raylib-renderer
+
+      - name: Run tests (Windows)
+        if: matrix.platform == 'windows-latest'
+        run: cargo test
 
       - name: Check Formatting
         if: matrix.platform == 'ubuntu-latest'
