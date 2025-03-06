@@ -948,7 +948,7 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn Clay_CreateArenaWithCapacityAndMemory(
-        capacity: u32,
+        capacity: usize,
         memory: *mut ::core::ffi::c_void,
     ) -> Clay_Arena;
 }
