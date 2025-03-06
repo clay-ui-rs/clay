@@ -178,10 +178,7 @@ pub struct ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData> 
 impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'render>
     ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>
 {
-    /// Create an element, passing it's config and a function to add childrens
-    /// ```
-    /// // TODO: Add Example
-    /// ```
+    /// Create an element, passing its config and a function to add childrens
     pub fn with<
         F: FnOnce(&ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>),
     >(
@@ -441,7 +438,7 @@ impl Clay {
     }
 
     /// Enables or disables the debug mode of clay
-    pub fn enable_debug_mode(&self, enable: bool) {
+    pub fn set_debug_mode(&self, enable: bool) {
         unsafe {
             Clay_SetDebugModeEnabled(enable);
         }
@@ -449,7 +446,7 @@ impl Clay {
 
     /// Sets the dimensions of the global layout, use if, for example the window size you render to
     /// changed
-    pub fn layout_dimensions(&self, dimensions: Dimensions) {
+    pub fn set_layout_dimensions(&self, dimensions: Dimensions) {
         unsafe {
             Clay_SetLayoutDimensions(dimensions.into());
         }
@@ -481,12 +478,12 @@ impl Clay {
         unsafe { Clay_PointerOver(cfg.id) }
     }
 
-    fn get_element_data(id: Id) -> Clay_ElementData {
+    fn element_data(id: Id) -> Clay_ElementData {
         unsafe { Clay_GetElementData(id.id) }
     }
 
-    pub fn get_bounding_box(&self, id: Id) -> Option<BoundingBox> {
-        let element_data = Self::get_element_data(id);
+    pub fn bounding_box(&self, id: Id) -> Option<BoundingBox> {
+        let element_data = Self::element_data(id);
 
         if element_data.found {
             Some(element_data.boundingBox.into())
