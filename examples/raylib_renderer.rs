@@ -18,7 +18,7 @@ pub fn main() {
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::WHITE);
 
-        let clay = clay.begin::<_, ()>();
+        let mut clay = clay.begin::<_, ()>();
 
         #[rustfmt::skip]
         clay.with(
