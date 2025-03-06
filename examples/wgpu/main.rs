@@ -57,7 +57,7 @@ impl<'a> ApplicationHandler for App<'a> {
         )));
 
         let mut clay = Clay::new((size.width as f32, size.height as f32).into());
-        clay.enable_debug_mode(false);
+        clay.set_debug_mode(false);
 
         clay.set_measure_text_function_user_data(ui_state.clone(), ui_layout::measure_text);
 

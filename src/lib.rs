@@ -201,11 +201,11 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
 
     pub fn with_styling<
         G: FnOnce(
-            &mut ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>,
+            &ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>,
         ) -> Declaration<'render, ImageElementData, CustomElementData>,
-        F: FnOnce(&mut ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>),
+        F: FnOnce(&ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>),
     >(
-        &mut self,
+        &self,
         g: G,
         f: F,
     ) {

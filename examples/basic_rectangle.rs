@@ -6,7 +6,7 @@ fn main() {
     let mut clay = Clay::new((800., 600.).into());
 
     // Begin the layout
-    let mut clay = clay.begin::<(), ()>();
+    let clay = clay.begin::<(), ()>();
 
     // Adds a red rectangle with a corner radius of 5.
     // The Layout makes the rectangle have a width and height of 50.
