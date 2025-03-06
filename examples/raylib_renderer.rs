@@ -11,7 +11,7 @@ pub fn main() {
         .build();
 
     while !rl.window_should_close() {
-        clay.layout_dimensions(
+        clay.set_layout_dimensions(
             (rl.get_screen_width() as f32, rl.get_screen_height() as f32).into(),
         );
 
