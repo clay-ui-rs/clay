@@ -1,5 +1,5 @@
 use crate::{bindings::*, color::Color, Declaration, Dimensions, Vector2};
-use std::ffi::c_void;
+use core::ffi::c_void;
 
 /// Builder for configuring border properties of a `Declaration`.
 pub struct BorderBuilder<

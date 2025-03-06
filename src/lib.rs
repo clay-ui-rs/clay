@@ -62,7 +62,7 @@ impl<'render, ImageElementData: 'render, CustomElementData: 'render>
 
     #[inline]
     pub fn custom_element(&mut self, data: &'render CustomElementData) -> &mut Self {
-        self.inner.custom.customData = data as *const CustomElementData as *mut std::ffi::c_void;
+        self.inner.custom.customData = data as *const CustomElementData as *mut core::ffi::c_void;
         self
     }
 
