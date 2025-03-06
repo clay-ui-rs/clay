@@ -15,7 +15,7 @@ pub mod renderers;
 
 use core::marker::PhantomData;
 
-use crate::bindings::*;
+pub use crate::bindings::*;
 use errors::Error;
 use id::Id;
 use math::{BoundingBox, Dimensions, Vector2};
@@ -62,7 +62,7 @@ impl<'render, ImageElementData: 'render, CustomElementData: 'render>
 
     #[inline]
     pub fn custom_element(&mut self, data: &'render CustomElementData) -> &mut Self {
-        self.inner.custom.customData = data as *const CustomElementData as *mut core::ffi::c_void;
+        self.inner.custom.customData = data as *const CustomElementData as _;
         self
     }
 
@@ -180,9 +180,9 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
 {
     /// Create an element, passing its config and a function to add childrens
     pub fn with<
-        F: FnOnce(&ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>),
+        F: FnOnce(&mut ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>),
     >(
-        &self,
+        &mut self,
         declaration: &Declaration<'render, ImageElementData, CustomElementData>,
         f: F,
     ) {
@@ -227,8 +227,7 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         }
     }
 
-    pub fn end(
-        mut self,
+    pub fn end(&mut self,
     ) -> impl Iterator<Item = RenderCommand<'render, ImageElementData, CustomElementData>> {
         let array = unsafe { Clay_EndLayout() };
         self.dropped = true;
@@ -283,6 +282,7 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         unsafe { Clay_PointerOver(cfg.id) }
     }
 }
+
 impl<ImageElementData, CustomElementData> Drop
     for ClayLayoutScope<'_, '_, ImageElementData, CustomElementData>
 {
@@ -294,6 +294,7 @@ impl<ImageElementData, CustomElementData> Drop
         }
     }
 }
+
 impl Clay {
     pub fn begin<'render, ImageElementData: 'render, CustomElementData: 'render>(
         &mut self,
@@ -466,6 +467,19 @@ impl Clay {
     ) {
         unsafe {
             Clay_UpdateScrollContainers(drag_scrolling_enabled, scroll_delta.into(), delta_time);
+        }
+    }
+
+    pub fn scroll_container_data(&self, id: Id) -> Option<Clay_ScrollContainerData> {
+        unsafe {
+            Clay_SetCurrentContext(self.context);
+            let scroll_container_data = Clay_GetScrollContainerData(id.id);
+
+            if scroll_container_data.found {
+                Some(scroll_container_data)
+            } else {
+                None
+            }
         }
     }
 
