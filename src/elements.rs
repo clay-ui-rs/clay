@@ -109,12 +109,6 @@ impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'rende
         self
     }
 
-    #[inline]
-    pub fn background_color(&mut self, color: Color) -> &mut Self {
-        self.parent.inner.image.backgroundColor = color.into();
-        self
-    }
-
     /// Sets the image data.
     /// The data must be created using [`Clay::data`].
     #[inline]
