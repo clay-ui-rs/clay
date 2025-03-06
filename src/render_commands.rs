@@ -72,6 +72,8 @@ pub struct Border {
 /// Represents an image with defined dimensions and data.
 #[derive(Debug, Clone)]
 pub struct Image<'a, ImageElementData> {
+    /// Background color
+    pub background_color: Color,
     /// The dimensions of the image.
     pub dimensions: Dimensions,
     /// A pointer to the image data.
@@ -123,6 +125,7 @@ impl<ImageElementData> Image<'_, ImageElementData> {
         Self {
             dimensions: value.sourceDimensions.into(),
             data: unsafe { &*value.imageData.cast() },
+            background_color: value.backgroundColor.into(),
         }
     }
 }
