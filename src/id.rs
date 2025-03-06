@@ -1,7 +1,8 @@
 use crate::bindings::*;
 
+#[derive(Debug, Copy, Clone)]
 pub struct Id {
-    pub(crate) id: Clay_ElementId,
+    pub id: Clay_ElementId,
 }
 
 impl Id {
