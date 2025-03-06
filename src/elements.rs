@@ -1,4 +1,5 @@
 use crate::{bindings::*, color::Color, Declaration, Dimensions, Vector2};
+use std::ffi::c_void;
 
 /// Builder for configuring border properties of a `Declaration`.
 pub struct BorderBuilder<
@@ -108,11 +109,17 @@ impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'rende
         self
     }
 
+    #[inline]
+    pub fn background_color(&mut self, color: Color) -> &mut Self {
+        self.parent.inner.image.backgroundColor = color.into();
+        self
+    }
+
     /// Sets the image data.
     /// The data must be created using [`Clay::data`].
     #[inline]
     pub fn data(&mut self, data: &'render ImageElementData) -> &mut Self {
-        self.parent.inner.image.imageData = (data as *const ImageElementData).cast();
+        self.parent.inner.image.imageData = data as *const ImageElementData as *mut c_void;
         self
     }
     /// Returns the modified `Declaration`.

@@ -8,10 +8,10 @@ pub mod id;
 pub mod layout;
 pub mod math;
 pub mod render_commands;
-pub mod renderers;
 pub mod text;
 
 mod mem;
+pub mod renderers;
 
 use core::marker::PhantomData;
 
@@ -62,7 +62,7 @@ impl<'render, ImageElementData: 'render, CustomElementData: 'render>
 
     #[inline]
     pub fn custom_element(&mut self, data: &'render CustomElementData) -> &mut Self {
-        self.inner.custom.customData = (data as *const CustomElementData).cast();
+        self.inner.custom.customData = data as *const CustomElementData as *mut std::ffi::c_void;
         self
     }
 
@@ -183,9 +183,9 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
     /// // TODO: Add Example
     /// ```
     pub fn with<
-        F: FnOnce(&mut ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>),
+        F: FnOnce(&ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData>),
     >(
-        &mut self,
+        &self,
         declaration: &Declaration<'render, ImageElementData, CustomElementData>,
         f: F,
     ) {
@@ -434,14 +434,14 @@ impl Clay {
     }
     /// Sets the capacity of the cache used for text in the measure text function
     /// **Use only if you know what you are doing or your getting errors from clay**
-    pub fn max_measure_text_cache_word_count(&mut self, count: u32) {
+    pub fn max_measure_text_cache_word_count(&self, count: u32) {
         unsafe {
             Clay_SetMaxElementCount(count as _);
         }
     }
 
     /// Enables or disables the debug mode of clay
-    pub fn enable_debug_mode(&mut self, enable: bool) {
+    pub fn enable_debug_mode(&self, enable: bool) {
         unsafe {
             Clay_SetDebugModeEnabled(enable);
         }
@@ -449,20 +449,20 @@ impl Clay {
 
     /// Sets the dimensions of the global layout, use if, for example the window size you render to
     /// changed
-    pub fn layout_dimensions(&mut self, dimensions: Dimensions) {
+    pub fn layout_dimensions(&self, dimensions: Dimensions) {
         unsafe {
             Clay_SetLayoutDimensions(dimensions.into());
         }
     }
     /// Updates the state of the pointer for clay. Used to update scroll containers and for
     /// interactions functions
-    pub fn pointer_state(&mut self, position: Vector2, is_down: bool) {
+    pub fn pointer_state(&self, position: Vector2, is_down: bool) {
         unsafe {
             Clay_SetPointerState(position.into(), is_down);
         }
     }
     pub fn update_scroll_containers(
-        &mut self,
+        &self,
         drag_scrolling_enabled: bool,
         scroll_delta: Vector2,
         delta_time: f32,
@@ -560,7 +560,7 @@ mod tests {
             Dimensions::default()
         });
 
-        let mut clay = clay.begin::<(), ()>();
+        let clay = clay.begin::<(), ()>();
 
         clay.with(&Declaration::new()
             .id(clay.id("parent_rect"))
