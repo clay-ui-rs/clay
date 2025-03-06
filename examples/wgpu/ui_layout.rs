@@ -41,7 +41,7 @@ impl<ImageElementData, CustomElementData> CustomStyles<ImageElementData, CustomE
 }
 
 fn render_header_button<'a, ImageElementData: 'a, CustomElementData: 'a>(
-    clay: &ClayLayoutScope<'a, 'a, ImageElementData, CustomElementData>,
+    clay: &mut ClayLayoutScope<'a, 'a, ImageElementData, CustomElementData>,
     text: &str,
 ) {
     clay.with(
@@ -60,7 +60,7 @@ fn render_header_button<'a, ImageElementData: 'a, CustomElementData: 'a>(
 }
 
 fn render_dropdown_menu_item<'a, ImageElementData: 'a, CustomElementData: 'a>(
-    clay: &ClayLayoutScope<'a, 'a, ImageElementData, CustomElementData>,
+    clay: &mut ClayLayoutScope<'a, 'a, ImageElementData, CustomElementData>,
     text: &str,
 ) {
     clay.with(
@@ -107,7 +107,7 @@ pub fn create_layout<'render>(
     clay.pointer_state(user_data.mouse_position.into(), false);
     clay.update_scroll_containers(false, user_data.scroll_delta.into(), time_delta);
 
-    let clay = clay.begin::<(), ()>();
+    let mut clay = clay.begin::<(), ()>();
 
     clay.with(
         &Declaration::new()

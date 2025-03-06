@@ -227,7 +227,8 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         }
     }
 
-    pub fn end(&mut self,
+    pub fn end(
+        &mut self,
     ) -> impl Iterator<Item = RenderCommand<'render, ImageElementData, CustomElementData>> {
         let array = unsafe { Clay_EndLayout() };
         self.dropped = true;
@@ -571,7 +572,7 @@ mod tests {
             Dimensions::default()
         });
 
-        let clay = clay.begin::<(), ()>();
+        let mut clay = clay.begin::<(), ()>();
 
         clay.with(&Declaration::new()
             .id(clay.id("parent_rect"))
