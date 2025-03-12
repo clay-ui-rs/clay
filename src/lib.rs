@@ -554,7 +554,6 @@ impl From<Clay_StringSlice> for &str {
 
 #[cfg(test)]
 mod tests {
-    use std::thread;
     use super::*;
     use color::Color;
     use layout::{Padding, Sizing};
