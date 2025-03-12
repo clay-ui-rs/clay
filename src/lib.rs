@@ -145,9 +145,9 @@ where
         text_slice.length as _,
     ));
 
-    let callback: &mut F = &mut *(user_data as *mut F);
+    let tuple = &*(user_data as *const (F, usize));
     let text_config = TextConfig::from(*config);
-    callback(text, &text_config).into()
+    (tuple.0)(text, &text_config).into()
 }
 
 unsafe extern "C" fn error_handler(error_data: Clay_ErrorData) {
