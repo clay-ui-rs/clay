@@ -515,8 +515,9 @@ impl Drop for Clay {
         unsafe {
             if let Some(ptr) = self.text_measure_callback {
                 let _ = Box::from_raw(ptr as *mut (usize, usize));
-                Clay_SetCurrentContext(core::ptr::null_mut() as _);
             }
+
+            Clay_SetCurrentContext(core::ptr::null_mut() as _);
         }
     }
 }
