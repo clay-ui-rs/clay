@@ -515,6 +515,7 @@ impl Drop for Clay {
         unsafe {
             if let Some(ptr) = self.text_measure_callback {
                 let _ = Box::from_raw(ptr as *mut (usize, usize));
+                Clay_SetCurrentContext(core::ptr::null_mut() as _);
             }
         }
     }
@@ -553,12 +554,13 @@ impl From<Clay_StringSlice> for &str {
 
 #[cfg(test)]
 mod tests {
+    use std::thread;
     use super::*;
     use color::Color;
     use layout::{Padding, Sizing};
 
-    #[test]
     #[rustfmt::skip]
+    #[test]
     fn test_begin() {
         let mut callback_data = 0u32;
 
@@ -639,5 +641,34 @@ mod tests {
                 item.id, item.bounding_box, item.config,
             );
         }
+    }
+
+    #[rustfmt::skip]
+    #[test]
+    fn test_simple_text_measure() {
+        let mut clay = Clay::new(Dimensions::new(800.0, 600.0));
+
+        clay.set_measure_text_function(|_text, _config| {
+            Dimensions::default()
+        });
+
+        let mut clay = clay.begin::<(), ()>();
+
+        clay.with(&Declaration::new()
+            .id(clay.id("parent_rect"))
+            .layout()
+                .width(Sizing::Fixed(100.0))
+                .height(Sizing::Fixed(100.0))
+                .padding(Padding::all(10))
+                .end()
+            .background_color(Color::rgb(255., 255., 255.)), |clay|
+        {
+            clay.text("test", TextConfig::new()
+                .color(Color::rgb(255., 255., 255.))
+                .font_size(24)
+                .end());
+        });
+
+        let _items = clay.end();
     }
 }
