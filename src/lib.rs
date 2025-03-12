@@ -396,7 +396,7 @@ impl Clay {
         F: Fn(&str, &TextConfig) -> Dimensions + 'static,
     {
         // Box the callback and userdata together
-        // Tuple here is to prevent Rust ZST optimization from breaking the C ABI
+        // Tuple here is to prevent Rust ZST optimization from breaking getting a raw pointer
         let boxed = Box::new((callback, 0usize));
 
         // Get a raw pointer to the boxed data
