@@ -145,9 +145,9 @@ where
         text_slice.length as _,
     ));
 
-    let callback: &mut F = &mut *(user_data as *mut F);
+    let tuple = &*(user_data as *const (F, usize));
     let text_config = TextConfig::from(*config);
-    callback(text, &text_config).into()
+    (tuple.0)(text, &text_config).into()
 }
 
 unsafe extern "C" fn error_handler(error_data: Clay_ErrorData) {
@@ -408,7 +408,8 @@ impl Clay {
         F: Fn(&str, &TextConfig) -> Dimensions + 'static,
     {
         // Box the callback and userdata together
-        let boxed = Box::new(callback);
+        // Tuple here is to prevent Rust ZST optimization from breaking getting a raw pointer
+        let boxed = Box::new((callback, 0usize));
 
         // Get a raw pointer to the boxed data
         let user_data_ptr = Box::into_raw(boxed) as *mut core::ffi::c_void;
@@ -527,6 +528,8 @@ impl Drop for Clay {
             if let Some(ptr) = self.text_measure_callback {
                 let _ = Box::from_raw(ptr as *mut (usize, usize));
             }
+
+            Clay_SetCurrentContext(core::ptr::null_mut() as _);
         }
     }
 }
@@ -568,8 +571,8 @@ mod tests {
     use color::Color;
     use layout::{Padding, Sizing};
 
-    #[test]
     #[rustfmt::skip]
+    #[test]
     fn test_begin() {
         let mut callback_data = 0u32;
 
@@ -650,5 +653,34 @@ mod tests {
                 item.id, item.bounding_box, item.config,
             );
         }
+    }
+
+    #[rustfmt::skip]
+    #[test]
+    fn test_simple_text_measure() {
+        let mut clay = Clay::new(Dimensions::new(800.0, 600.0));
+
+        clay.set_measure_text_function(|_text, _config| {
+            Dimensions::default()
+        });
+
+        let mut clay = clay.begin::<(), ()>();
+
+        clay.with(&Declaration::new()
+            .id(clay.id("parent_rect"))
+            .layout()
+                .width(Sizing::Fixed(100.0))
+                .height(Sizing::Fixed(100.0))
+                .padding(Padding::all(10))
+                .end()
+            .background_color(Color::rgb(255., 255., 255.)), |clay|
+        {
+            clay.text("test", TextConfig::new()
+                .color(Color::rgb(255., 255., 255.))
+                .font_size(24)
+                .end());
+        });
+
+        let _items = clay.end();
     }
 }
