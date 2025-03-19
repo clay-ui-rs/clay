@@ -227,12 +227,15 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         }
     }
 
-    pub fn collect<'commands>(&mut self) -> Vec<RenderCommand<'commands, ImageElementData, CustomElementData>> {
+    pub fn collect<'commands>(
+        &mut self,
+    ) -> Vec<RenderCommand<'commands, ImageElementData, CustomElementData>> {
         let array = unsafe { Clay_EndLayout() };
         self.dropped = true;
         let slice = unsafe { core::slice::from_raw_parts(array.internalArray, array.length as _) };
-        let mut commands = Vec::<RenderCommand<'commands, ImageElementData, CustomElementData>>::new();
-        for command in slice.iter(){    
+        let mut commands =
+            Vec::<RenderCommand<'commands, ImageElementData, CustomElementData>>::new();
+        for command in slice.iter() {
             commands.push(unsafe { RenderCommand::from_clay_render_command(*command) });
         }
 
