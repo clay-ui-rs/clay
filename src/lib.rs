@@ -243,7 +243,7 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         slice
             .iter()
             .map(|command| unsafe { RenderCommand::from_clay_render_command(*command) })
-            .collect::<Vec::<RenderCommand<'commands, ImageElementData, CustomElementData>>>()
+            .collect::<Vec<RenderCommand<'commands, ImageElementData, CustomElementData>>>()
     }
 
     pub fn end(
