@@ -227,6 +227,7 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         }
     }
 
+    #[cfg(feature = "std")]
     pub fn collect<'commands>(
         &mut self,
     ) -> Vec<RenderCommand<'commands, ImageElementData, CustomElementData>> {
