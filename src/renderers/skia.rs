@@ -270,7 +270,6 @@ pub fn create_measure_text_function(
             text_config.font_size as f32,
         );
         let width = font.measure_str(text, None).0;
-        dbg!(text, width);
         (width, font.metrics().1.bottom - font.metrics().1.top).into()
     }
 }
