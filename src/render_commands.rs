@@ -76,6 +76,8 @@ pub struct Image<'a, ImageElementData> {
     pub background_color: Color,
     /// The dimensions of the image.
     pub dimensions: Dimensions,
+    /// The corner radii for rounded border edges.
+    pub corner_radii: CornerRadii,
     /// A pointer to the image data.
     pub data: &'a ImageElementData,
 }
@@ -125,6 +127,7 @@ impl<ImageElementData> Image<'_, ImageElementData> {
         Self {
             dimensions: value.sourceDimensions.into(),
             data: unsafe { &*value.imageData.cast() },
+            corner_radii: value.cornerRadius.into(),
             background_color: value.backgroundColor.into(),
         }
     }

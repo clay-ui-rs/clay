@@ -459,6 +459,8 @@ pub struct __pthread_cond_s {
     pub __g1_orig_size: ::core::ffi::c_uint,
     pub __wrefs: ::core::ffi::c_uint,
     pub __g_signals: [::core::ffi::c_uint; 2usize],
+    pub __unused_initialized_1: ::core::ffi::c_uint,
+    pub __unused_initialized_2: ::core::ffi::c_uint,
 }
 pub type __tss_t = ::core::ffi::c_uint;
 pub type __thrd_t = ::core::ffi::c_ulong;
@@ -521,6 +523,7 @@ unsafe extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Clay_String {
+    pub isStaticallyAllocated: bool,
     pub length: i32,
     pub chars: *const ::core::ffi::c_char,
 }
@@ -578,6 +581,13 @@ pub struct Clay_ElementId {
     pub offset: u32,
     pub baseId: u32,
     pub stringId: Clay_String,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Clay_ElementIdArray {
+    pub capacity: i32,
+    pub length: i32,
+    pub internalArray: *mut Clay_ElementId,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -675,6 +685,7 @@ pub type Clay_TextAlignment = ::core::ffi::c_uchar;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Clay_TextElementConfig {
+    pub userData: *mut ::core::ffi::c_void,
     pub textColor: Clay_Color,
     pub fontId: u16,
     pub fontSize: u16,
@@ -682,7 +693,6 @@ pub struct Clay_TextElementConfig {
     pub lineHeight: u16,
     pub wrapMode: Clay_TextElementConfigWrapMode,
     pub textAlignment: Clay_TextAlignment,
-    pub hashStringContents: bool,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -734,6 +744,9 @@ pub const Clay_FloatingAttachToElement_CLAY_ATTACH_TO_ELEMENT_WITH_ID:
     Clay_FloatingAttachToElement = 2;
 pub const Clay_FloatingAttachToElement_CLAY_ATTACH_TO_ROOT: Clay_FloatingAttachToElement = 3;
 pub type Clay_FloatingAttachToElement = ::core::ffi::c_uchar;
+pub const Clay_FloatingClipToElement_CLAY_CLIP_TO_NONE: Clay_FloatingClipToElement = 0;
+pub const Clay_FloatingClipToElement_CLAY_CLIP_TO_ATTACHED_PARENT: Clay_FloatingClipToElement = 1;
+pub type Clay_FloatingClipToElement = ::core::ffi::c_uchar;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Clay_FloatingElementConfig {
@@ -744,6 +757,7 @@ pub struct Clay_FloatingElementConfig {
     pub attachPoints: Clay_FloatingAttachPoints,
     pub pointerCaptureMode: Clay_PointerCaptureMode,
     pub attachTo: Clay_FloatingAttachToElement,
+    pub clipTo: Clay_FloatingClipToElement,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -762,14 +776,15 @@ pub struct Clay__Clay_CustomElementConfigWrapper {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct Clay_ScrollElementConfig {
+pub struct Clay_ClipElementConfig {
     pub horizontal: bool,
     pub vertical: bool,
+    pub childOffset: Clay_Vector2,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct Clay__Clay_ScrollElementConfigWrapper {
-    pub wrapped: Clay_ScrollElementConfig,
+pub struct Clay__Clay_ClipElementConfigWrapper {
+    pub wrapped: Clay_ClipElementConfig,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -828,6 +843,7 @@ pub struct Clay_ScrollRenderData {
     pub horizontal: bool,
     pub vertical: bool,
 }
+pub type Clay_ClipRenderData = Clay_ScrollRenderData;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Clay_BorderRenderData {
@@ -843,7 +859,7 @@ pub union Clay_RenderData {
     pub image: Clay_ImageRenderData,
     pub custom: Clay_CustomRenderData,
     pub border: Clay_BorderRenderData,
-    pub scroll: Clay_ScrollRenderData,
+    pub clip: Clay_ClipRenderData,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -851,7 +867,7 @@ pub struct Clay_ScrollContainerData {
     pub scrollPosition: *mut Clay_Vector2,
     pub scrollContainerDimensions: Clay_Dimensions,
     pub contentDimensions: Clay_Dimensions,
-    pub config: Clay_ScrollElementConfig,
+    pub config: Clay_ClipElementConfig,
     pub found: bool,
 }
 #[repr(C)]
@@ -911,7 +927,7 @@ pub struct Clay_ElementDeclaration {
     pub image: Clay_ImageElementConfig,
     pub floating: Clay_FloatingElementConfig,
     pub custom: Clay_CustomElementConfig,
-    pub scroll: Clay_ScrollElementConfig,
+    pub clip: Clay_ClipElementConfig,
     pub border: Clay_BorderElementConfig,
     pub userData: *mut ::core::ffi::c_void,
 }
@@ -976,6 +992,9 @@ unsafe extern "C" {
     );
 }
 unsafe extern "C" {
+    pub fn Clay_GetScrollOffset() -> Clay_Vector2;
+}
+unsafe extern "C" {
     pub fn Clay_SetLayoutDimensions(dimensions: Clay_Dimensions);
 }
 unsafe extern "C" {
@@ -1010,6 +1029,9 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn Clay_PointerOver(elementId: Clay_ElementId) -> bool;
+}
+unsafe extern "C" {
+    pub fn Clay_GetPointerOverIds() -> Clay_ElementIdArray;
 }
 unsafe extern "C" {
     pub fn Clay_GetScrollContainerData(id: Clay_ElementId) -> Clay_ScrollContainerData;
@@ -1072,6 +1094,9 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn Clay__ConfigureOpenElement(config: Clay_ElementDeclaration);
+}
+unsafe extern "C" {
+    pub fn Clay__ConfigureOpenElementPtr(config: *const Clay_ElementDeclaration);
 }
 unsafe extern "C" {
     pub fn Clay__CloseElement();

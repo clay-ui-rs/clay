@@ -302,7 +302,7 @@ pub fn create_layout<'render>(
                             .content_background_config()
                             .layout_expand()
                             .id(clay.id("main_content"))
-                            .scroll(false, true)
+                            .clip(false, true, clay.scroll_offset())
                             .layout()
                             .direction(TopToBottom)
                             .child_gap(16)
@@ -332,6 +332,7 @@ pub fn create_layout<'render>(
 
 use crate::UIState;
 use std::{cell::RefCell, rc::Rc};
+
 pub fn measure_text(text: &str, config: &TextConfig, ui: &mut Rc<RefCell<UIState>>) -> Dimensions {
     ui.borrow_mut()
         .measure_text(text, config.font_size as f32, config.line_height as f32)

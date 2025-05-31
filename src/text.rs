@@ -48,9 +48,6 @@ pub struct TextConfig {
     pub line_height: u16,
     /// Defines the text wrapping behavior.
     pub wrap_mode: TextElementConfigWrapMode,
-    /// If `true`, the string contents are hashed to prevent unnecessary updates.
-    /// Set this to `false` if the text element is updated frequently.
-    pub hash_string_contents: bool,
     /// The alignment of the text.
     pub alignment: TextAlignment,
 }
@@ -96,16 +93,6 @@ impl TextConfig {
         self
     }
 
-    /// Enables or disables hashing of string contents.
-    ///
-    /// If the text content changes frequently, set this to `true` otherwise Clay will cache this
-    /// and not rehash the content.
-    #[inline]
-    pub fn hash_string_contents(&mut self, do_hash: bool) -> &mut Self {
-        self.hash_string_contents = do_hash;
-        self
-    }
-
     /// Sets the text wrapping mode.
     #[inline]
     pub fn wrap_mode(&mut self, mode: TextElementConfigWrapMode) -> &mut Self {
@@ -137,7 +124,6 @@ impl Default for TextConfig {
             letter_spacing: 0,
             line_height: 0,
             wrap_mode: TextElementConfigWrapMode::Words,
-            hash_string_contents: true,
             alignment: TextAlignment::Left,
         }
     }
@@ -146,13 +132,13 @@ impl Default for TextConfig {
 impl From<TextConfig> for Clay_TextElementConfig {
     fn from(value: TextConfig) -> Self {
         Self {
+            userData: core::ptr::null_mut(),
             textColor: value.color.into(),
             fontId: value.font_id,
             fontSize: value.font_size,
             letterSpacing: value.letter_spacing,
             lineHeight: value.line_height,
             wrapMode: value.wrap_mode as _,
-            hashStringContents: value.hash_string_contents,
             textAlignment: value.alignment as _,
         }
     }
@@ -170,7 +156,6 @@ impl From<Clay_TextElementConfig> for TextConfig {
                 core::mem::transmute::<u8, TextElementConfigWrapMode>(value.wrapMode)
             },
             alignment: unsafe { core::mem::transmute::<u8, TextAlignment>(value.textAlignment) },
-            hash_string_contents: value.hashStringContents,
         }
     }
 }
