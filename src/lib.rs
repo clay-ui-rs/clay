@@ -292,9 +292,7 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
     }
 
     pub fn scroll_offset(&self) -> Vector2 {
-        unsafe {
-            Clay_GetScrollOffset().into()
-        }
+        unsafe { Clay_GetScrollOffset().into() }
     }
 }
 
