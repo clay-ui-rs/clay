@@ -32,12 +32,12 @@ fn main() {
     clay.with(&Declaration::new()
         .id(clay.id("red_rectangle"))
         .layout()
-        .width(fixed!(50.))
-        .height(fixed!(50.))
+            .width(fixed!(50.))
+            .height(fixed!(50.))
         .end()
         .corner_radius()
-        .all(5.)
-        .end()
+            .all(5.)
+            .end()
         .background_color((0xFF, 0x00, 0x00).into()), |_| {},
     );
 
