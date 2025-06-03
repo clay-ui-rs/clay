@@ -101,13 +101,6 @@ impl<'declaration, 'render, ImageElementData: 'render, CustomElementData: 'rende
         ImageBuilder { parent }
     }
 
-    /// Sets the source directory of the image.
-    #[inline]
-    pub fn source_dimensions(&mut self, dimensions: Dimensions) -> &mut Self {
-        self.parent.inner.image.sourceDimensions = dimensions.into();
-        self
-    }
-
     /// Sets the image data.
     /// The data must be created using [`Clay::data`].
     #[inline]

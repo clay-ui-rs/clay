@@ -701,9 +701,18 @@ pub struct Clay__Clay_TextElementConfigWrapper {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct Clay_AspectRatioElementConfig {
+    pub aspectRatio: f32,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Clay__Clay_AspectRatioElementConfigWrapper {
+    pub wrapped: Clay_AspectRatioElementConfig,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
 pub struct Clay_ImageElementConfig {
     pub imageData: *mut ::core::ffi::c_void,
-    pub sourceDimensions: Clay_Dimensions,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -827,7 +836,6 @@ pub struct Clay_RectangleRenderData {
 pub struct Clay_ImageRenderData {
     pub backgroundColor: Clay_Color,
     pub cornerRadius: Clay_CornerRadius,
-    pub sourceDimensions: Clay_Dimensions,
     pub imageData: *mut ::core::ffi::c_void,
 }
 #[repr(C)]
@@ -924,6 +932,7 @@ pub struct Clay_ElementDeclaration {
     pub layout: Clay_LayoutConfig,
     pub backgroundColor: Clay_Color,
     pub cornerRadius: Clay_CornerRadius,
+    pub aspectRatio: Clay_AspectRatioElementConfig,
     pub image: Clay_ImageElementConfig,
     pub floating: Clay_FloatingElementConfig,
     pub custom: Clay_CustomElementConfig,

@@ -1,8 +1,4 @@
-use crate::{
-    bindings::*,
-    color::Color,
-    math::{BoundingBox, Dimensions},
-};
+use crate::{bindings::*, color::Color, math::BoundingBox};
 
 /// Represents a rectangle with a specified color and corner radii.
 #[derive(Debug, Clone)]
@@ -74,8 +70,6 @@ pub struct Border {
 pub struct Image<'a, ImageElementData> {
     /// Background color
     pub background_color: Color,
-    /// The dimensions of the image.
-    pub dimensions: Dimensions,
     /// The corner radii for rounded border edges.
     pub corner_radii: CornerRadii,
     /// A pointer to the image data.
@@ -125,7 +119,6 @@ impl From<Clay_TextRenderData> for Text<'_> {
 impl<ImageElementData> Image<'_, ImageElementData> {
     pub(crate) unsafe fn from_clay_image_render_data(value: Clay_ImageRenderData) -> Self {
         Self {
-            dimensions: value.sourceDimensions.into(),
             data: unsafe { &*value.imageData.cast() },
             corner_radii: value.cornerRadius.into(),
             background_color: value.backgroundColor.into(),

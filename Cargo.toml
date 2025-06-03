@@ -1,6 +1,6 @@
 [package]
 name = "clay-layout"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 description = "Rust bindings for Clay, a UI layout library written in C."
 keywords = ["clay", "ui", "layout", "bindings", "no_std"]
@@ -22,14 +22,14 @@ wasm = []
 debug = []
 
 [dependencies]
-skia-safe = { version = "0.82.0", features = ["gl"], optional = true }
+skia-safe = { version = "0.86.0", features = ["gl"], optional = true }
 raylib = { version = "5.5.0", optional = true }
 
 [dev-dependencies]
-winit = "0.30.9"
-wgpu = "24.0.1"
-pollster = "0.2"
-bytemuck = { version = "1.16", features = [ "derive" ] }
+winit = "0.30"
+wgpu = "24.0"
+pollster = "0.4"
+bytemuck = { version = "1.23", features = [ "derive" ] }
 glyphon = "0.8.0"
 
 [[example]]
