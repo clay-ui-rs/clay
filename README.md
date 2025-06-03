@@ -18,6 +18,9 @@ clay-layout = "0.4"
 Example usage:
 
 ```rust
+use clay_layout::{fixed, Clay, Declaration};
+
+fn main() {
     // Create the clay instance
     let mut clay = Clay::new((800., 600.).into());
 
@@ -29,12 +32,12 @@ Example usage:
     clay.with(&Declaration::new()
         .id(clay.id("red_rectangle"))
         .layout()
-            .width(fixed!(50.))
-            .height(fixed!(50.))
-            .end()
+        .width(fixed!(50.))
+        .height(fixed!(50.))
+        .end()
         .corner_radius()
-            .all(5.)
-            .end()
+        .all(5.)
+        .end()
         .background_color((0xFF, 0x00, 0x00).into()), |_| {},
     );
 
@@ -46,6 +49,7 @@ Example usage:
         println!("Bounding box: {:?}", command.bounding_box);
         println!("Type and config: {:?}", command.config);
     }
+}
 ```
 
 ## Examples
