@@ -63,7 +63,7 @@ cargo run --example raylib_renderer --features raylib-renderer
 
 ## Build bindings
 
-Notice that building the bindings is only required if you update the `clay.h`
+Notice that building the bindings is only required if you update the `clay.h` \
 To build bindings you need to use the `generate_bindings` script. \
 It needs `bindgen` installed as a CLI, you can install it with `cargo install bindgen`. \
 Calling it will use the `clay.h` in the project root, or any `clay.h` file provided with `CLAY_HEADER_PATH`. \
