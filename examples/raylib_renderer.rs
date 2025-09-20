@@ -22,14 +22,14 @@ pub fn main() {
 
         #[rustfmt::skip]
         clay.with(
-            &Declaration::new()
+            Declaration::new()
                 .layout()
                     .width(grow!())
                     .height(grow!())
                 .end(),
             |c| {
                 c.with(
-                    &Declaration::new()
+                    Declaration::new()
                         .layout()
                             .width(grow!())
                             .height(grow!())
@@ -42,7 +42,7 @@ pub fn main() {
                 );
 
                 c.with(
-                    &Declaration::new()
+                    Declaration::new()
                         .layout()
                             .width(grow!())
                             .height(grow!())

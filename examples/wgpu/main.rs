@@ -99,13 +99,13 @@ impl<'a> ApplicationHandler for App<'a> {
                 self.ctx
                     .as_mut()
                     .unwrap()
-                    .render(|mut render_pass, device, queue, config| {
+                    .render(|render_pass, device, queue, config| {
                         ui_renderer.render_clay(
                             render_commands,
-                            &mut render_pass,
-                            &device,
-                            &queue,
-                            &config,
+                            render_pass,
+                            device,
+                            queue,
+                            config,
                         );
                     })
                     .unwrap();
@@ -116,12 +116,11 @@ impl<'a> ApplicationHandler for App<'a> {
                 device_id: _,
                 state,
                 button,
-            } => match button {
-                winit::event::MouseButton::Left => {
+            } => {
+                if button == winit::event::MouseButton::Left {
                     self.clay_user_data.mouse_down_rising_edge = state.is_pressed();
                 }
-                _ => {}
-            },
+            }
             WindowEvent::MouseWheel {
                 device_id: _,
                 delta,

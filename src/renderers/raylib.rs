@@ -153,8 +153,8 @@ pub fn clay_raylib_render<'rl, 'a, CustomElementData: 'a>(
 
                 if border.corner_radii.top_left > 0. {
                     let vec = Vector2::new(
-                        (command.bounding_box.x + border.corner_radii.top_left) as f32,
-                        (command.bounding_box.y + border.corner_radii.top_left) as f32,
+                        command.bounding_box.x + border.corner_radii.top_left,
+                        command.bounding_box.y + border.corner_radii.top_left,
                     );
 
                     d.draw_ring(
@@ -170,9 +170,9 @@ pub fn clay_raylib_render<'rl, 'a, CustomElementData: 'a>(
 
                 if border.corner_radii.top_right > 0. {
                     let vec = Vector2::new(
-                        (command.bounding_box.x + command.bounding_box.width
-                            - border.corner_radii.top_right) as f32,
-                        (command.bounding_box.y + border.corner_radii.top_right) as f32,
+                        command.bounding_box.x + command.bounding_box.width
+                            - border.corner_radii.top_right,
+                        command.bounding_box.y + border.corner_radii.top_right,
                     );
 
                     d.draw_ring(
@@ -188,9 +188,9 @@ pub fn clay_raylib_render<'rl, 'a, CustomElementData: 'a>(
 
                 if border.corner_radii.bottom_left > 0. {
                     let vec = Vector2::new(
-                        (command.bounding_box.x + border.corner_radii.bottom_left) as f32,
-                        (command.bounding_box.y + command.bounding_box.height
-                            - border.corner_radii.bottom_left) as f32,
+                        command.bounding_box.x + border.corner_radii.bottom_left,
+                        command.bounding_box.y + command.bounding_box.height
+                            - border.corner_radii.bottom_left,
                     );
 
                     d.draw_ring(
@@ -206,10 +206,10 @@ pub fn clay_raylib_render<'rl, 'a, CustomElementData: 'a>(
 
                 if border.corner_radii.bottom_right > 0. {
                     let vec = Vector2::new(
-                        (command.bounding_box.x + command.bounding_box.width
-                            - border.corner_radii.bottom_right) as f32,
-                        (command.bounding_box.y + command.bounding_box.height
-                            - border.corner_radii.bottom_right) as f32,
+                        command.bounding_box.x + command.bounding_box.width
+                            - border.corner_radii.bottom_right,
+                        command.bounding_box.y + command.bounding_box.height
+                            - border.corner_radii.bottom_right,
                     );
 
                     d.draw_ring(

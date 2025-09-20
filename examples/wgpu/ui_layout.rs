@@ -45,7 +45,7 @@ fn render_header_button<'a, ImageElementData: 'a, CustomElementData: 'a>(
     text: &str,
 ) {
     clay.with(
-        &Declaration::new()
+        Declaration::new()
             .layout()
             .padding(Padding::new(16, 16, 8, 8))
             .end()
@@ -64,7 +64,7 @@ fn render_dropdown_menu_item<'a, ImageElementData: 'a, CustomElementData: 'a>(
     text: &str,
 ) {
     clay.with(
-        &Declaration::new().layout().padding(Padding::all(16)).end(),
+        Declaration::new().layout().padding(Padding::all(16)).end(),
         |clay| {
             clay.text(text, TextConfig::new().font_size(16).color(WHITE).end());
         },
@@ -110,7 +110,7 @@ pub fn create_layout<'render>(
     let mut clay = clay.begin::<(), ()>();
 
     clay.with(
-        &Declaration::new()
+        Declaration::new()
             .layout()
             .width(grow!())
             .height(grow!())
@@ -124,7 +124,7 @@ pub fn create_layout<'render>(
             .background_color(Color::rgb(43.0, 41.0, 51.0)),
         |clay| {
             clay.with(
-                &Declaration::new()
+                Declaration::new()
                     .content_background_config()
                     .id(clay.id("header_bar"))
                     .layout()
@@ -141,7 +141,7 @@ pub fn create_layout<'render>(
                     .end(),
                 |clay| {
                     clay.with(
-                        &Declaration::new()
+                        Declaration::new()
                             .id(clay.id("file_button"))
                             .layout()
                             .padding(Padding {
@@ -163,7 +163,7 @@ pub fn create_layout<'render>(
 
                             if file_menu_visible {
                                 clay.with(
-                                    &Declaration::new()
+                                    Declaration::new()
                                         .id(clay.id("file_menu"))
                                         .floating()
                                         .attach_to(FloatingAttachToElement::Parent)
@@ -173,7 +173,7 @@ pub fn create_layout<'render>(
                                         .end(),
                                     |clay| {
                                         clay.with(
-                                            &Declaration::new()
+                                            Declaration::new()
                                                 .layout()
                                                 .direction(TopToBottom)
                                                 .width(fixed!(200.0))
@@ -195,7 +195,7 @@ pub fn create_layout<'render>(
                     );
 
                     render_header_button(clay, "Edit");
-                    clay.with(&Declaration::new().layout().width(grow!()).end(), |_| {});
+                    clay.with(Declaration::new().layout().width(grow!()).end(), |_| {});
                     render_header_button(clay, "Upload");
                     render_header_button(clay, "Media");
                     render_header_button(clay, "Support");
@@ -203,7 +203,7 @@ pub fn create_layout<'render>(
             );
 
             clay.with(
-                &Declaration::new()
+                Declaration::new()
                     .layout_expand()
                     .id(clay.id("lower_content"))
                     .layout()
@@ -211,7 +211,7 @@ pub fn create_layout<'render>(
                     .end(),
                 |clay| {
                     clay.with(
-                        &Declaration::new()
+                        Declaration::new()
                             .content_background_config()
                             .id(clay.id("sidebar"))
                             .layout()
