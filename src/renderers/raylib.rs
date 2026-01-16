@@ -31,16 +31,19 @@ pub fn clay_raylib_render<'rl, 'a, CustomElementData: 'a>(
     d: &mut RaylibDrawHandle<'rl>,
     render_commands: impl Iterator<Item = RenderCommand<'a, Texture2D, CustomElementData>>,
     mut handle_custom_element: impl FnMut(&CustomElementData, &mut RaylibDrawHandle<'rl>),
+    fonts: &[&impl RaylibFont],
 ) {
     for command in render_commands {
         match command.config {
             RenderCommandConfig::Text(text) => {
+                let font = fonts[text.font_id as usize];
                 let text_data = text.text;
-                d.draw_text(
+                d.draw_text_ex(
+                    font,
                     text_data,
-                    command.bounding_box.x as i32,
-                    command.bounding_box.y as i32,
+                    Vector2::new(command.bounding_box.x, command.bounding_box.y),
                     text.font_size.into(),
+                    text.letter_spacing.into(),
                     clay_to_raylib_color!(text.color),
                 );
             }
