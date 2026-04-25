@@ -42,7 +42,7 @@ pub struct UIBorderThickness {
     pub right: f32,
 }
 
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Copy, Clone, Debug, Default, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
 pub struct UIPosition {
     pub x: f32,
@@ -52,17 +52,11 @@ pub struct UIPosition {
 
 impl UIPosition {
     pub fn new() -> Self {
-        Self {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        }
+        Default::default()
     }
 
-    pub fn rotate(&mut self, mut degrees: f32) {
-        degrees = -degrees;
-
-        degrees = degrees * (std::f32::consts::PI / 180.0);
+    pub fn rotate(&mut self, degrees: f32) {
+        let degrees = -degrees.to_radians();
 
         let (sn, cs) = degrees.sin_cos();
 
@@ -233,16 +227,16 @@ impl UIState {
 
         let mut ui_pipeline_builder = UIPipeline::new(pixel_format);
         ui_pipeline_builder.add_buffer_layout(UIVertex::get_layout());
-        let render_pipeline = ui_pipeline_builder.build_pipeline(&device);
+        let render_pipeline = ui_pipeline_builder.build_pipeline(device);
 
         let mut font_system = FontSystem::new();
         let swash_cache = SwashCache::new();
-        let cache = Cache::new(&device);
-        let viewport = Viewport::new(&device, &cache);
-        let mut atlas = TextAtlas::new(&device, &queue, &cache, pixel_format);
+        let cache = Cache::new(device);
+        let viewport = Viewport::new(device, &cache);
+        let mut atlas = TextAtlas::new(device, queue, &cache, pixel_format);
         let text_renderer = TextRenderer::new(
             &mut atlas,
-            &device,
+            device,
             MultisampleState::default(),
             Some(wgpu::DepthStencilState {
                 format: wgpu::TextureFormat::Depth32Float,
@@ -277,7 +271,7 @@ impl UIState {
         queue.write_buffer(
             &self.buffer,
             0,
-            bytemuck::cast_slice(&self.vertices.get(0..self.number_of_vertices).unwrap()),
+            bytemuck::cast_slice(self.vertices.get(0..self.number_of_vertices).unwrap()),
         );
 
         render_pass.set_vertex_buffer(0, self.buffer.slice(..));
@@ -296,7 +290,7 @@ impl UIState {
         self.atlas.trim();
 
         self.viewport.update(
-            &queue,
+            queue,
             Resolution {
                 width: surface_config.width,
                 height: surface_config.height,
@@ -336,8 +330,8 @@ impl UIState {
                 queue,
                 &mut self.font_system,
                 &mut self.atlas,
-                &mut self.viewport,
-                areas.into_iter(),
+                &self.viewport,
+                areas,
                 &mut self.swash_cache,
                 |metadata| (metadata as f32) / 10000.0,
             )
@@ -388,48 +382,42 @@ impl UIState {
     }
 
     pub fn triangle(&mut self, positions: &[UIPosition; 3], color: UIColor) {
-        match self
+        if let Some(vertices) = self
             .vertices
             .get_mut(self.number_of_vertices..self.number_of_vertices + 3)
         {
-            None => return,
-            Some(vertices) => {
-                for (vertex, position) in vertices.iter_mut().zip(positions.iter()) {
-                    vertex.position = *position;
-                    vertex.color = color;
-                    self.number_of_vertices += 1;
-                }
+            for (vertex, position) in vertices.iter_mut().zip(positions.iter()) {
+                vertex.position = *position;
+                vertex.color = color;
+                self.number_of_vertices += 1;
             }
         }
     }
 
     pub fn quad(&mut self, positions: &[UIPosition; 4], color: UIColor) {
-        match self
+        if let Some(vertices) = self
             .vertices
             .get_mut(self.number_of_vertices..self.number_of_vertices + 6)
         {
-            None => return,
-            Some(vertices) => {
-                vertices.get_mut(0).unwrap().position = positions[0];
-                vertices.get_mut(0).unwrap().color = color;
+            vertices.get_mut(0).unwrap().position = positions[0];
+            vertices.get_mut(0).unwrap().color = color;
 
-                vertices.get_mut(1).unwrap().position = positions[1];
-                vertices.get_mut(1).unwrap().color = color;
+            vertices.get_mut(1).unwrap().position = positions[1];
+            vertices.get_mut(1).unwrap().color = color;
 
-                vertices.get_mut(2).unwrap().position = positions[2];
-                vertices.get_mut(2).unwrap().color = color;
+            vertices.get_mut(2).unwrap().position = positions[2];
+            vertices.get_mut(2).unwrap().color = color;
 
-                vertices.get_mut(3).unwrap().position = positions[0];
-                vertices.get_mut(3).unwrap().color = color;
+            vertices.get_mut(3).unwrap().position = positions[0];
+            vertices.get_mut(3).unwrap().color = color;
 
-                vertices.get_mut(4).unwrap().position = positions[2];
-                vertices.get_mut(4).unwrap().color = color;
+            vertices.get_mut(4).unwrap().position = positions[2];
+            vertices.get_mut(4).unwrap().color = color;
 
-                vertices.get_mut(5).unwrap().position = positions[3];
-                vertices.get_mut(5).unwrap().color = color;
+            vertices.get_mut(5).unwrap().position = positions[3];
+            vertices.get_mut(5).unwrap().color = color;
 
-                self.number_of_vertices += 6;
-            }
+            self.number_of_vertices += 6;
         }
     }
 
@@ -769,12 +757,12 @@ impl UIState {
                         UIPosition {
                             x: command.bounding_box.x,
                             y: command.bounding_box.y,
-                            z: depth as f32,
+                            z: depth,
                         },
                         UIPosition {
                             x: command.bounding_box.width,
                             y: command.bounding_box.height,
-                            z: depth as f32,
+                            z: depth,
                         },
                         UIColor {
                             r: r.color.r / 255.0,
@@ -794,12 +782,12 @@ impl UIState {
                         UIPosition {
                             x: command.bounding_box.x,
                             y: command.bounding_box.y,
-                            z: depth as f32,
+                            z: depth,
                         },
                         UIPosition {
                             x: command.bounding_box.width,
                             y: command.bounding_box.height,
-                            z: depth as f32,
+                            z: depth,
                         },
                         UIBorderThickness {
                             top: (b.width.top as f32),
@@ -831,10 +819,10 @@ impl UIState {
                         UIPosition {
                             x: command.bounding_box.x,
                             y: command.bounding_box.y,
-                            z: depth as f32,
+                            z: depth,
                         },
                         match scissor_active {
-                            true => Some((scissor_position.clone(), scissor_bounds.clone())),
+                            true => Some((scissor_position, scissor_bounds)),
                             false => None,
                         },
                         Color::rgb(text.color.r as u8, text.color.g as u8, text.color.b as u8),
@@ -859,7 +847,7 @@ impl UIState {
         if self.number_of_vertices > 0 {
             self.render(render_pass, queue);
         }
-        if self.lines.len() > 0 {
+        if !self.lines.is_empty() {
             self.render_text(device, queue, render_pass, surface_config);
         }
     }
