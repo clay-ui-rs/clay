@@ -2,8 +2,10 @@ use crate::math::{BoundingBox, Dimensions};
 use crate::render_commands::{Custom, RenderCommand, RenderCommandConfig};
 use crate::text::TextConfig;
 use crate::{ClayLayoutScope, Color as ClayColor};
+
 use skia_safe::{
-    Canvas, ClipOp, Color, Font, Image, Paint, Point, RRect, Rect, SamplingOptions, Typeface,
+    Canvas, ClipOp, Color, Font, Image, Paint, PaintCap, Point, RRect, Rect, SamplingOptions,
+    Typeface,
 };
 
 pub fn clay_to_skia_color(color: ClayColor) -> Color {
@@ -200,23 +202,28 @@ pub fn clay_skia_render<'a, CustomElementData: 'a>(
                 // For corner arcs, we draw strokes.
                 let mut stroke = Paint::default();
                 stroke.set_color(clay_to_skia_color(border.color));
-                stroke.set_stroke_width(1.0);
+
                 stroke.set_style(skia_safe::paint::Style::Stroke);
                 stroke.set_anti_alias(true);
 
                 // Helper to draw an arc.
-                let draw_corner_arc = |canvas: &Canvas,
-                                       center_x: f32,
-                                       center_y: f32,
-                                       radius: f32,
-                                       start_angle: f32,
-                                       sweep_angle: f32| {
+                let mut draw_corner_arc = |canvas: &Canvas,
+                                           center_x: f32,
+                                           center_y: f32,
+                                           radius: f32,
+                                           start_angle: f32,
+                                           sweep_angle: f32,
+                                           width: u16| {
+                    let radius = radius - (width as f32 / 2.);
                     let arc_rect = Rect::from_xywh(
                         center_x - radius,
                         center_y - radius,
                         radius * 2.0,
                         radius * 2.0,
                     );
+
+                    stroke.set_stroke_width(width as f32);
+                    stroke.set_stroke_cap(PaintCap::Round);
                     canvas.draw_arc(arc_rect, start_angle, sweep_angle, false, &stroke);
                 };
 
@@ -224,13 +231,25 @@ pub fn clay_skia_render<'a, CustomElementData: 'a>(
                     // top-left: arc from 180 to 270 degrees.
                     let center_x = bb.x + border.corner_radii.top_left;
                     let center_y = bb.y + border.corner_radii.top_left;
+
                     draw_corner_arc(
                         canvas,
                         center_x,
                         center_y,
                         border.corner_radii.top_left,
                         180.0,
-                        90.0,
+                        90.0 / 2.,
+                        border.width.left,
+                    );
+
+                    draw_corner_arc(
+                        canvas,
+                        center_x,
+                        center_y,
+                        border.corner_radii.top_left,
+                        180.0 + 90.0 / 2.,
+                        90.0 / 2.,
+                        border.width.top,
                     );
                 }
 
@@ -238,13 +257,24 @@ pub fn clay_skia_render<'a, CustomElementData: 'a>(
                     // top-right: arc from 270 to 360 degrees.
                     let center_x = bb.x + bb.width - border.corner_radii.top_right;
                     let center_y = bb.y + border.corner_radii.top_right;
+
                     draw_corner_arc(
                         canvas,
                         center_x,
                         center_y,
                         border.corner_radii.top_right,
                         270.0,
-                        90.0,
+                        90.0 / 2.0,
+                        border.width.top,
+                    );
+                    draw_corner_arc(
+                        canvas,
+                        center_x,
+                        center_y,
+                        border.corner_radii.top_right,
+                        270.0 + 90. / 2.,
+                        90.0 / 2.0,
+                        border.width.right,
                     );
                 }
 
@@ -252,13 +282,25 @@ pub fn clay_skia_render<'a, CustomElementData: 'a>(
                     // bottom-left: arc from 90 to 180 degrees.
                     let center_x = bb.x + border.corner_radii.bottom_left;
                     let center_y = bb.y + bb.height - border.corner_radii.bottom_left;
+
                     draw_corner_arc(
                         canvas,
                         center_x,
                         center_y,
                         border.corner_radii.bottom_left,
                         90.0,
-                        90.0,
+                        90.0 / 2.,
+                        border.width.bottom,
+                    );
+
+                    draw_corner_arc(
+                        canvas,
+                        center_x,
+                        center_y,
+                        border.corner_radii.bottom_left,
+                        90.0 + 90. / 2.,
+                        90.0 / 2.,
+                        border.width.left,
                     );
                 }
 
@@ -266,13 +308,24 @@ pub fn clay_skia_render<'a, CustomElementData: 'a>(
                     // bottom-right: arc from 0 to 90 degrees.
                     let center_x = bb.x + bb.width - border.corner_radii.bottom_right;
                     let center_y = bb.y + bb.height - border.corner_radii.bottom_right;
+
                     draw_corner_arc(
                         canvas,
                         center_x,
                         center_y,
                         border.corner_radii.bottom_right,
-                        0.0,
-                        90.0,
+                        0.,
+                        90.0 / 2.,
+                        border.width.right,
+                    );
+                    draw_corner_arc(
+                        canvas,
+                        center_x,
+                        center_y,
+                        border.corner_radii.bottom_right,
+                        90.0 / 2.,
+                        90.0 / 2.,
+                        border.width.bottom,
                     );
                 }
             }
