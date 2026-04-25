@@ -227,9 +227,9 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         unsafe {
             Clay_SetCurrentContext(self.clay.context);
         }
-        
+
         let declaration = g(self);
-        
+
         unsafe {
             if let Some(id) = declaration.id {
                 Clay__OpenElementWithId(id.id);
