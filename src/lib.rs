@@ -184,6 +184,8 @@ pub struct ClayLayoutScope<'clay, 'render, ImageElementData, CustomElementData> 
     clay: &'clay mut Clay,
     _phantom: core::marker::PhantomData<(&'render ImageElementData, &'render CustomElementData)>,
     dropped: bool,
+    #[cfg(feature = "std")]
+    owned_strings: core::cell::RefCell<std::vec::Vec<std::string::String>>,
 }
 
 impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'render>
@@ -257,9 +259,46 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
             .map(|command| unsafe { RenderCommand::from_clay_render_command(*command) })
     }
 
-    /// Adds a text element to the current open element or to the root layout
+    /// Adds a text element to the current open element or to the root layout.
+    /// The string data is copied and stored.
+    /// For string literals, use `text_literal()` for better performance (avoids copying).
+    /// For dynamic strings, use `text_string()`.
+    #[cfg(feature = "std")]
+    pub fn text(&self, text: &str, config: TextElementConfig) {
+        let owned = std::string::String::from(text);
+        self.text_string(owned, config);
+    }
+
+    /// Adds a text element from a string that must live until fully used.
+    /// Only available in no_std - you must ensure the string lives long enough.
+    #[cfg(not(feature = "std"))]
     pub fn text(&self, text: &'render str, config: TextElementConfig) {
         unsafe { Clay__OpenTextElement(text.into(), config.into()) };
+    }
+
+    /// Adds a text element from a static string literal without copying.
+    pub fn text_literal(&self, text: &'static str, config: TextElementConfig) {
+        let clay_string = Clay_String {
+            isStaticallyAllocated: true,
+            length: text.len() as _,
+            chars: text.as_ptr() as _,
+        };
+        unsafe { Clay__OpenTextElement(clay_string, config.into()) };
+    }
+
+    /// Adds a text element from an owned string that will be stored.
+    #[cfg(feature = "std")]
+    pub fn text_string(&self, text: std::string::String, config: TextElementConfig) {
+        let mut owned_strings = self.owned_strings.borrow_mut();
+        owned_strings.push(text);
+        let text_ref = owned_strings.last().unwrap();
+
+        let clay_string = Clay_String {
+            isStaticallyAllocated: false,
+            length: text_ref.len() as _,
+            chars: text_ref.as_ptr() as _,
+        };
+        unsafe { Clay__OpenTextElement(clay_string, config.into()) };
     }
 
     pub fn hovered(&self) -> bool {
@@ -310,6 +349,8 @@ impl Clay {
             clay: self,
             _phantom: core::marker::PhantomData,
             dropped: false,
+            #[cfg(feature = "std")]
+            owned_strings: core::cell::RefCell::new(std::vec::Vec::new()),
         }
     }
 
@@ -344,7 +385,7 @@ impl Clay {
     ///
     /// This ID is global and must be unique across the entire scope.
     #[inline]
-    pub fn id(&self, label: &str) -> id::Id {
+    pub fn id(&self, label: &'static str) -> id::Id {
         id::Id::new(label)
     }
 
@@ -352,7 +393,7 @@ impl Clay {
     ///
     /// This is useful when multiple elements share the same label but need distinct IDs.
     #[inline]
-    pub fn id_index(&self, label: &str, index: u32) -> id::Id {
+    pub fn id_index(&self, label: &'static str, index: u32) -> id::Id {
         id::Id::new_index(label, index)
     }
 
@@ -360,7 +401,7 @@ impl Clay {
     ///
     /// The ID is unique within a specific local scope but not globally.
     #[inline]
-    pub fn id_local(&self, label: &str) -> id::Id {
+    pub fn id_local(&self, label: &'static str) -> id::Id {
         id::Id::new_index_local(label, 0)
     }
 
@@ -368,7 +409,7 @@ impl Clay {
     ///
     /// This is useful for differentiating elements within a local scope while keeping their labels consistent.
     #[inline]
-    pub fn id_index_local(&self, label: &str, index: u32) -> id::Id {
+    pub fn id_index_local(&self, label: &'static str, index: u32) -> id::Id {
         id::Id::new_index_local(label, index)
     }
 
@@ -561,8 +602,7 @@ impl Drop for Clay {
 impl From<&str> for Clay_String {
     fn from(value: &str) -> Self {
         Self {
-            // TODO: Can we support &'static str here?
-            isStaticallyAllocated: false,
+            isStaticallyAllocated: true,
             length: value.len() as _,
             chars: value.as_ptr() as _,
         }
@@ -641,7 +681,7 @@ mod tests {
                         .end()
                     .background_color(Color::rgb(255., 255., 255.)), |clay|
                     {
-                        clay.text("test", TextConfig::new()
+                        clay.text_literal("test", TextConfig::new()
                             .color(Color::rgb(255., 255., 255.))
                             .font_size(24)
                             .end());
@@ -701,7 +741,17 @@ mod tests {
                 .end()
             .background_color(Color::rgb(255., 255., 255.)), |clay|
         {
-            clay.text("test", TextConfig::new()
+            clay.text_literal("test", TextConfig::new()
+                .color(Color::rgb(255., 255., 255.))
+                .font_size(24)
+                .end());
+
+            clay.text(&format!("dynamic str {}", 1234), TextConfig::new()
+                .color(Color::rgb(255., 255., 255.))
+                .font_size(24)
+                .end());
+
+            clay.text_string(format!("String {}", 1234), TextConfig::new()
                 .color(Color::rgb(255., 255., 255.))
                 .font_size(24)
                 .end());
