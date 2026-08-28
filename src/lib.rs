@@ -266,6 +266,31 @@ impl<'render, 'clay: 'render, ImageElementData: 'render, CustomElementData: 'ren
         unsafe { Clay_Hovered() }
     }
 
+    #[cfg(feature = "std")]
+    pub fn on_hover<F, T>(&self, callback: F, user_data: T)
+    where
+        F: Fn(Id, Clay_PointerData, &mut T) + 'static,
+    {
+        let boxed = Box::new((callback, user_data));
+        let user_data_ptr = Box::into_raw(boxed) as *mut core::ffi::c_void;
+
+        unsafe extern "C" fn trampoline<F, T>(
+            element_id: Clay_ElementId,
+            pointer_data: Clay_PointerData,
+            user_data: *mut core::ffi::c_void,
+        ) where
+            F: Fn(Id, Clay_PointerData, &mut T) + 'static,
+        {
+            let (callback, data) = &mut *(user_data as *mut (F, T));
+            let id = Id { id: element_id };
+            callback(id, pointer_data, data);
+        }
+
+        unsafe {
+            Clay_OnHover(Some(trampoline::<F, T>), user_data_ptr);
+        }
+    }
+
     pub fn scroll_offset(&self) -> Vector2 {
         unsafe { Clay_GetScrollOffset().into() }
     }
@@ -374,6 +399,16 @@ impl Clay {
 
     pub fn pointer_over(&self, cfg: Id) -> bool {
         unsafe { Clay_PointerOver(cfg.id) }
+    }
+
+    #[cfg(feature = "std")]
+    /// Z-sorted list of element IDs that the cursor is currently over
+    pub fn pointer_over_ids(&self) -> Vec<Id> {
+        unsafe {
+            let array = Clay_GetPointerOverIds();
+            let slice = core::slice::from_raw_parts(array.internalArray, array.length as _);
+            slice.iter().map(|&id| Id { id }).collect()
+        }
     }
 
     #[cfg(not(feature = "std"))]
@@ -485,6 +520,18 @@ impl Clay {
     pub fn set_debug_mode(&self, enable: bool) {
         unsafe {
             Clay_SetDebugModeEnabled(enable);
+        }
+    }
+
+    /// Returns if debug mode is enabled
+    pub fn is_debug_mode(&self) -> bool {
+        unsafe { Clay_IsDebugModeEnabled() }
+    }
+
+    /// Enables or disables culling
+    pub fn set_culling(&self, enable: bool) {
+        unsafe {
+            Clay_SetCullingEnabled(enable);
         }
     }
 

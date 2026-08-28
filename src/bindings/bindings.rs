@@ -1609,10 +1609,10 @@ unsafe extern "C" {
             unsafe extern "C" fn(
                 elementId: Clay_ElementId,
                 pointerData: Clay_PointerData,
-                userData: isize,
+                userData: *mut ::core::ffi::c_void,
             ),
         >,
-        userData: isize,
+        userData: *mut ::core::ffi::c_void,
     );
 }
 unsafe extern "C" {
